@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}RACELINK{% endblock %}</title>
+</head>
+<body>
+    <nav>
+        <a href="/">Home</a> |
+        <a href="/login">Login</a> |
+        <a href="/register">Register</a> |
+        <a href="/runner/marathons">Marathons</a> |
+        <a href="/admin/marathons">Admin</a>|
+        <a href="/logout">Logout</a>
+    </nav>
+
+    <hr>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    <hr>
+
+    {% block content %}{% endblock %}
+</body>
+</html>

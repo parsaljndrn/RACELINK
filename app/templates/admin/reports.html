@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>System Summary</h2>
+    <ul>
+        <li><strong>Total Runners:</strong> {{ total_runners }}</li>
+        <li><strong>Total Marathons:</strong> {{ total_marathons }}</li>
+        <li><strong>Total Bookings:</strong> {{ total_bookings }}</li>
+    </ul>
+
+    <hr>
+
+    <!-- Detailed Report Table -->
+    <h2>Marathon Breakdown</h2>
+    {% if reports %}
+        <table border="1" cellpadding="6" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Marathon Name</th>
+                    <th>Total Runners</th>
+                    <th>Approved Payments</th>
+                    <th>Pending Payments</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for report in reports %}
+                <tr>
+                    <td>{{ report.marathon_name }}</td>
+                    <td>{{ report.total_runners }}</td>
+                    <td>{{ report.approved_payments }}</td>
+                    <td>{{ report.pending_payments }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No marathon data available yet.</p>
+    {% endif %}
+{% endblock %}
