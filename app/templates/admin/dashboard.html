@@ -1,0 +1,11 @@
+<!--ADMIN MARATHON DASHBOARD-->
+{% extends "base.html" %}
+<h2>Manage Marathons</h2>
+<a href="{{ url_for('admin.add_marathon') }}">Add New Marathon</a>
+<ul>
+{% for m in marathons %}
+  <li>{{ m.title }} - {{ m.date }} ({{ m.location }})
+      <a href="{{ url_for('admin.edit_marathon', event_id=m.id) }}">Edit</a>
+  </li>
+{% endfor %}
+</ul>

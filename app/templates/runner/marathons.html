@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Marathon List{% endblock %}
+{% block content %}
+<h2>Available Marathons</h2>
+<ul>
+{% for marathon in marathons %}
+    <li>{{ marathon.name }} - {{ marathon.location }} - {{ marathon.date }}</li>
+<h2>All Marathon Events</h2>
+<p>This will show the list of available marathons.</p>
+{% endfor %}
+</ul>
+{% endblock %}

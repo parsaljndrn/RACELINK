@@ -16,7 +16,16 @@ def create_app():
     login_manager.init_app(app)
     migrate.init_app(app, db)
 
-    from app import routes, models
-    app.register_blueprint(routes.main)
+    from app.routes.main_routes import main
+    from app.routes.auth_routes import auth
+    from app.routes.admin_routes import admin
+    from app.routes.runner_routes import runner
+    
+    app.register_blueprint(main)
+    app.register_blueprint(auth)
+    app.register_blueprint(admin)
+    app.register_blueprint(runner)
 
     return app
+
+

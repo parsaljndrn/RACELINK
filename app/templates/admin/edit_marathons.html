@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Edit Marathon: {{ marathon.title }}</h2>
+
+    <form method="POST">
+        <label>Title:</label><br>
+        <input type="text" name="name" value="{{ marathon.title }}" required><br><br>
+
+        <label>Date:</label><br>
+        <input type="date" name="date" value="{{ marathon.date }}" required><br><br>
+
+        <label>Location:</label><br>
+        <input type="text" name="location" value="{{ marathon.location }}" required><br><br>
+
+        <label>Distance (km):</label><br>
+        <input type="text" name="distance" value="{{ marathon.distance }}"><br><br>
+
+        <label>Registration Fee:</label><br>
+        <input type="number" name="registration_fee" step="0.01" value="{{ marathon.registration_fee }}" required><br><br>
+
+        <button type="submit">Update Marathon</button>
+    </form>
+
+    <br>
+    <a href="{{ url_for('admin.manage_marathons') }}">← Back to Marathon List</a>
+{% endblock %}
