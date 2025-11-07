@@ -1,12 +1,46 @@
-{% extends 'base.html' %}
-{% block title %}Marathon List{% endblock %}
-{% block content %}
-<h2>Available Marathons</h2>
-<ul>
-{% for marathon in marathons %}
-    <li>{{ marathon.name }} - {{ marathon.location }} - {{ marathon.date }}</li>
-<h2>All Marathon Events</h2>
-<p>This will show the list of available marathons.</p>
-{% endfor %}
-</ul>
-{% endblock %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upcoming Marathons</title>
+</head>
+<body>
+    <h1>Upcoming Marathons</h1>
+    <p>Choose your next challenge and register today!</p>
+
+    <!-- Event 1 -->
+    <div>
+        <p><strong>Event name:</strong> City Marathon</p>
+        <p><strong>Date:</strong> 2025-12-10</p>
+        <p><strong>Location:</strong> Manila</p>
+        <p><strong>Price:</strong> ₱500</p>
+        <p><strong>Description:</strong> Run through the heart of the city!</p>
+
+        <form method="GET" action="/event_details/1" style="display:inline;">
+            <button type="submit">View Details</button>
+        </form>
+
+        <form method="POST" action="/book_event/1" style="display:inline;">
+            <button type="submit">Book Now</button>
+        </form>
+    </div>
+
+    <hr>
+
+    <!-- Event 2 -->
+    <div>
+        <p><strong>Event name:</strong> Beachside Run</p>
+        <p><strong>Date:</strong> 2026-01-15</p>
+        <p><strong>Location:</strong> Cebu</p>
+        <p><strong>Price:</strong> ₱700</p>
+        <p><strong>Description:</strong> Enjoy the scenic ocean view while running!</p>
+
+        <form method="GET" action="/event_details/2" style="display:inline;">
+            <button type="submit">View Details</button>
+        </form>
+
+        <form method="POST" action="/book_event/2" style="display:inline;">
+            <button type="submit">Book Now</button>
+        </form>
+    </div>
+</body>
+</html>

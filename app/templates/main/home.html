@@ -1,7 +1,7 @@
 <h1>Welcome to RACELINK</h1>
 <p>Your portal for marathon events and registration.</p>
 
-<a href="/runner/marathons">Marathons</a>
-<a href="/about">About</a>
-<a href = "/register"> SIGN IN</a>
-<a href = "/login"> LOG IN</a>
+<a href="{{ url_for('runner.view_marathons') }}">Marathons</a>
+<a href="{{ url_for('main.about') }}">About</a>
+<a href="{{ url_for('auth.register') }}">Sign Up</a>
+<a href="{{ url_for('auth.login') }}">Log In</a>
