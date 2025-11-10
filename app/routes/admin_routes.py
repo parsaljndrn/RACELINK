@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required, current_user
 from app import db
 from app.models import MarathonEvent, Booking, PaymentProof, User
+from flask import jsonify
 
 admin = Blueprint('admin', __name__)
 
@@ -16,16 +17,32 @@ def organizer_required(func):
         return func(*args, **kwargs)
     return decorated_function
 
-#view lahat ng events ni organizer
-@admin.route('/admin/marathons')
+#orgqnizer dashboard
+@admin.route('/admin/admin_dashboard')
 @login_required
 @organizer_required
-def manage_marathons():
+def admin_dashboard():
     marathons = MarathonEvent.query.all()
-    return render_template('admin/marathons.html', marathons=marathons)
+    return render_template('admin/dashboard.html', marathons=marathons)
+
+#Manage Events Page (base sa wireframe)
+@admin.route('/admin/ManageEvents', methods=['GET', 'POST'])
+@login_required
+@organizer_required
+def manage_events():
+    marathons = MarathonEvent.query.all()
+    return render_template('admin/manage_events.html', marathons=marathons)
+
+#View Event details
+@admin.route('/admin/EventDetails', methods=['GET', 'POST'])
+@login_required
+@organizer_required
+def event_details():
+    marathons = MarathonEvent.query.all()
+    return render_template('admin/manage_events.html', marathons=marathons)
 
 #add new event
-@admin.route('/admin/add_marathon', methods=['GET', 'POST'])
+@admin.route('/admin/ManageEvents/addEvent', methods=['GET', 'POST'])
 @login_required
 @organizer_required
 def add_marathon():
@@ -48,32 +65,28 @@ def add_marathon():
         db.session.add(new_event)
         db.session.commit()
         flash('Marathon added successfully!', 'success')
-        return redirect(url_for('admin.manage_marathons'))
+        return redirect(url_for('admin.manage_events'))
 
-    return render_template('admin/add_marathon.html')
+    return redirect(url_for('admin.manage_events'))
 
 #edit an event
-@admin.route('/admin/edit_marathon/<int:event_id>', methods=['GET', 'POST'])
+@admin.route('/admin/ManageEvents/edit_marathon/<int:event_id>', methods=['POST'])
 @login_required
 @organizer_required
 def edit_marathon(event_id):
     marathon = MarathonEvent.query.get_or_404(event_id)
+    marathon.name = request.form['name']
+    marathon.date = request.form['date']
+    marathon.location = request.form['location']
+    marathon.distance = request.form['distance']
+    marathon.registration_fee = request.form['registration_fee']
 
-    if request.method == 'POST':
-        marathon.name = request.form['name']
-        marathon.date = request.form['date']
-        marathon.location = request.form['location']
-        marathon.distance = request.form['distance']
-        marathon.registration_fee = request.form['registration_fee']
-
-        db.session.commit()
-        flash('Marathon updated!', 'info')
-        return redirect(url_for('admin.manage_marathons'))
-
-    return render_template('admin/edit_marathons.html', marathon=marathon)
+    db.session.commit()
+    flash('Marathon updated!', 'info')
+    return redirect(url_for('admin.manage_events'))
 
 #delete
-@admin.route('/admin/delete_marathon/<int:event_id>', methods=['POST'])
+@admin.route('/admin/ManageEvents/delete_marathon/<int:event_id>', methods=['POST'])
 @login_required
 @organizer_required
 def delete_marathon(event_id):
@@ -81,16 +94,38 @@ def delete_marathon(event_id):
     db.session.delete(marathon)
     db.session.commit()
     flash('Marathon deleted.', 'warning')
-    return redirect(url_for('admin.manage_marathons'))
+    return redirect(url_for('admin.manage_events'))
 
 # view payments
-@admin.route('/admin/payments')
+@admin.route('/admin/event/<int:event_id>/payments')
 @login_required
 @organizer_required
-def manage_payments():
-    pending = PaymentProof.query.filter_by(status='Pending').all()
-    approved = PaymentProof.query.filter_by(status='Approved').all()
-    return render_template('admin/payments.html', pending=pending, approved=approved)
+def view_event_payments(event_id):
+    pending = PaymentProof.query.join(Booking).filter(
+        Booking.marathon_id == event_id,
+        PaymentProof.status == 'Pending'
+    ).all()
+
+    approved = PaymentProof.query.join(Booking).filter(
+        Booking.marathon_id == event_id,
+        PaymentProof.status == 'Approved'
+    ).all()
+
+    def serialize(payment):
+        return {
+            'id': payment.id,
+            'runner': payment.booking.runner.name,        # use name instead of user_id
+            'marathon': payment.booking.marathon.title,  # use title instead of id
+            'amount': payment.booking.marathon.registration_fee,
+            'status': payment.status,
+            'file_path': url_for('static', filename=payment.file_path)  # <-- fixed
+        }
+
+    pending_data = [serialize(p) for p in pending]
+    approved_data = [serialize(p) for p in approved]
+
+    return jsonify({'pending': pending_data, 'approved': approved_data})
+
 #approve payments
 @admin.route('/admin/approve_payment/<int:payment_id>', methods=['POST'])
 @login_required
@@ -100,7 +135,9 @@ def approve_payment(payment_id):
     payment.status = 'Approved'
     db.session.commit()
     flash('Payment approved.', 'success')
-    return redirect(url_for('admin.manage_payments'))
+    return jsonify({'success': True}) 
+
+#Profile Information
 
 #sales report
 @admin.route('/admin/reports')

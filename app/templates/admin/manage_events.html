@@ -1,0 +1,287 @@
+{% extends 'base_admin.html' %}
+{% block content %}
+<h2>Manage Marathons</h2>
+
+<ul>
+<h2>All Marathon Events</h2>
+
+<button type="button" onclick="openAddModal()">ADD EVENT</button>
+{% for m in marathons %}
+<li>{{ m.title }} - {{ m.date }} ({{ m.location }})</li>
+  <button type="button" 
+    onclick='openViewModal("{{ m.id }}", "{{ m.title }}", "{{ m.date.strftime("%Y-%m-%d") }}", "{{ m.location }}", "{{ m.distance }}", "{{ m.registration_fee }}")'>
+  View
+  </button>
+{% endfor %}
+</ul>
+
+<!-- ADD MODAL (hidden by default) -->
+<div id="addModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5);">
+  <div style="background:white; padding:20px; margin:100px auto; width:400px; border-radius:10px;">
+    <form action="{{ url_for('admin.add_marathon') }}" method="POST">
+      <label>Marathon Title:</label><br>
+      <input type="text" name="title" required><br><br>
+  
+      <label>Description:</label><br>
+      <textarea name="description" rows="4" cols="40" required></textarea><br><br>
+
+      <label>Date:</label><br>
+      <input type="date" name="date" required><br><br>
+
+      <label>Location:</label><br>
+      <input type="text" name="location" required><br><br>
+
+      <label>Registration Fee:</label><br>
+      <input type="number" name="registration_fee" step="0.01" required><br><br>
+
+      <button type="submit">Add Marathon</button>
+      <button type="button" onclick="closeAddModal()">Cancel</button>
+    </form>
+  </div>
+</div>  
+
+<!-- EDIT MODAL (hidden by default) -->
+<div id="editModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5);">
+  <div style="background:white; padding:20px; margin:100px auto; width:400px; border-radius:10px;">
+    <h2 id="editTitle">Edit Marathon</h2>
+    
+    <form id="editForm" method="POST">
+      <label>Title:</label><br>
+      <input type="text" id="editName" name="name" required><br><br>
+
+      <label>Date:</label><br>
+      <input type="date" id="editDate" name="date" required><br><br>
+
+      <label>Location:</label><br>
+      <input type="text" id="editLocation" name="location" required><br><br>
+
+      <label>Distance (km):</label><br>
+      <input type="text" id="editDistance" name="distance"><br><br>
+
+      <label>Registration Fee:</label><br>
+      <input type="number" id="editFee" name="registration_fee" step="0.01" required><br><br>
+
+      <button type="submit">Update</button>
+      <button type="button" onclick="closeEditModal()">Cancel</button>
+    </form>
+  </div>
+</div>
+
+<!-- VIEW DETAILS MODAL (hidden by default) -->
+<div id="viewModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5);">
+  <div style="background:white; padding:20px; margin:100px auto; width:400px; border-radius:10px;">
+    <h2 id="modalTitle">Marathon Details</h2>
+      <p><strong>Date:</strong> <span id="modalDate"></span></p>
+      <p><strong>Location:</strong> <span id="modalLocation"></span></p>
+      <p><strong>Registration Fee:</strong> ₱<span id="modalFee"></span></p>
+    
+      <button id="editBtn">Edit</button>
+      <button type="button" onclick="openViewPaymentModal(currentEventId)">View Payments</button>
+      <button type="button" onclick="closeViewModal()">Cancel</button>
+  </div>
+</div>
+
+<!-- view payment modal-->
+<div id="viewPaymentModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5);">
+  <div style="background:white; padding:20px; margin:100px auto; width:400px; border-radius:10px;">
+    <h2 id="modalTitle">Marathon Details</h2>
+      
+      <h2>Payments Overview</h2>
+
+      <h3>Pending Payments</h3>
+      <table border="1" cellpadding="6">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Runner</th>
+            <th>Marathon</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Proof</th>
+          </tr>
+        </thead>
+        <tbody class="pending-body">
+          <tr><td colspan="6">No pending payments.</td></tr>
+        </tbody>
+      </table>
+
+      <br><br>
+
+      <h3>Approved Payments</h3>
+      <table border="1" cellpadding="6">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Runner</th>
+            <th>Marathon</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Proof</th>
+          </tr>
+        </thead>
+        <tbody class="approved-body">
+          <tr><td colspan="6">No approved payments.</td></tr>
+        </tbody>
+      </table>
+
+      <button type="button" onclick="closeViewPaymentModal()">Cancel</button>
+  </div>
+</div>
+
+<script>
+let currentEventId = null; // Track which marathon is being viewed/edited
+
+function openEditModal(id, title, date, location, distance, fee) {
+  closeViewModal(); // Close view modal first
+
+  // Pre-fill the edit form
+  document.getElementById('editName').value = title;
+  document.getElementById('editDate').value = date;
+  document.getElementById('editLocation').value = location;
+  document.getElementById('editDistance').value = distance;
+  document.getElementById('editFee').value = fee;
+
+  // Set the form action dynamically (so it saves the correct event)
+  document.getElementById('editForm').action = `/admin/ManageEvents/edit_marathon/${id}`;
+
+  document.getElementById('editModal').style.display = 'block';
+}
+
+function closeEditModal() {
+  document.getElementById('editModal').style.display = 'none';
+}
+
+function openAddModal() {
+    document.getElementById("addModal").style.display = "block";
+}
+
+function closeAddModal() {
+    document.getElementById("addModal").style.display = "none";
+}
+
+function openViewModal(id, title, date, location, distance, fee) {
+  currentEventId = id;
+
+  // Populate modal content
+  document.getElementById('modalTitle').innerText = title;
+  document.getElementById('modalDate').innerText = date;
+  document.getElementById('modalLocation').innerText = location;
+  document.getElementById('modalFee').innerText = fee;
+
+  // Set the edit button’s action
+  const editBtn = document.getElementById('editBtn');
+  editBtn.onclick = function() {
+    openEditModal(id, title, date, location, distance, fee);
+  };
+  // Show modal
+  document.getElementById('viewModal').style.display = 'block';
+}
+
+function closeViewModal() {
+  document.getElementById('viewModal').style.display = 'none';
+}
+
+function openViewPaymentModal(eventId) {
+  console.log("Fetching payments for event:", eventId);
+  document.getElementById('viewPaymentModal').style.display = 'block';
+
+  const modal = document.getElementById('viewPaymentModal');
+  modal.style.display = 'block';
+
+  const pendingBody = document.querySelector('.pending-body');
+  const approvedBody = document.querySelector('.approved-body');
+
+  // Clear existing table data
+  pendingBody.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
+  approvedBody.innerHTML = '';
+
+  // Fetch data from backend
+  fetch(`/admin/event/${eventId}/payments`)
+    .then(response => response.json())
+    .then(data => {
+      // Pending Payments
+      if (data.pending.length > 0) {
+        pendingBody.innerHTML = '';
+        data.pending.forEach(p => {
+          pendingBody.innerHTML += `
+            <tr>
+              <td>${p.id}</td>
+              <td>${p.runner}</td>
+              <td>${p.marathon}</td>
+              <td>₱${p.amount}</td>
+              <td>${p.status}</td>
+              <td>
+                <a href="${p.file_path}" target="_blank">TignanMO</a>
+                <button onclick="approvePayment(${p.id}, this)">Approve</button>
+              </td>
+            </tr>`;
+        });
+      } else {
+        pendingBody.innerHTML = '<tr><td colspan="6">No pending payments.</td></tr>';
+      }
+
+      // Approved Payments
+      if (data.approved.length > 0) {
+        approvedBody.innerHTML = '';
+        data.approved.forEach(p => {
+          approvedBody.innerHTML += `
+            <tr>
+              <td>${p.id}</td>
+              <td>${p.runner}</td>
+              <td>${p.marathon}</td>
+              <td>₱${p.amount}</td>
+              <td>${p.status}</td>
+              <td><a href="${p.file_path}" target="_blank">View</a></td>
+            </tr>`;
+        });
+      } else {
+        approvedBody.innerHTML = '<tr><td colspan="6">No approved payments.</td></tr>';
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching payments:', error);
+      pendingBody.innerHTML = '<tr><td colspan="6">Error loading data.</td></tr>';
+    });
+}
+
+function closeViewPaymentModal() {
+  document.getElementById('viewPaymentModal').style.display = 'none';
+}
+function approvePayment(paymentId, btn) {
+  fetch(`/admin/approve_payment/${paymentId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      const row = btn.closest('tr');
+      const approvedBody = document.querySelector('.approved-body');
+      
+      // Remove the approve button and update status
+      row.querySelector('td:nth-child(5)').innerText = 'Approved';
+      row.querySelector('td:nth-child(6)').innerHTML = `<a href="${row.querySelector('td:nth-child(6) a').href}" target="_blank">View Proof</a>`;
+      
+      // Move the row to the approved table
+      approvedBody.appendChild(row);
+
+      // If no more pending rows, show "No pending payments"
+      const pendingBody = document.querySelector('.pending-body');
+      if (pendingBody.children.length === 0) {
+        pendingBody.innerHTML = '<tr><td colspan="6">No pending payments.</td></tr>';
+      }
+
+      alert('Payment approved successfully!');
+    } else {
+      alert('Error approving payment.');
+    }
+  })
+  .catch(err => {
+    console.error(err);
+    alert('Error approving payment.');
+  });
+}
+
+</script>
+
+{% endblock %}

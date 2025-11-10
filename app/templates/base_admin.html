@@ -6,8 +6,9 @@
 </head>
 <body>
     <nav>
-        <a href="/admin/dashboard">Dashboard</a>
-        <a href="">Manage Events</a>
+        <a href="{{ url_for('admin.admin_dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('admin.manage_events') }}">Manage Events</a>
+        <a href="">Profile</a>
         <a href="">About Us</a>
         <a href="/logout">Logout</a>
     </nav>
