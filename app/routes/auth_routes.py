@@ -32,7 +32,7 @@ def login():
 
         # Redirect automatically based on role
         if user.role == 'organizer':
-            return redirect(url_for('admin.manage_marathons'))
+            return redirect(url_for('admin.admin_dashboard'))
         else:
             return redirect(url_for('runner.view_marathons'))
 
