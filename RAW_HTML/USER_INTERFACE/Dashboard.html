@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Runner Dashboard</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Righteous&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
+
+  <style>
+    :root {
+      --black: #0B0C10;
+      --yellow: #FFCD29;
+      --gray: #D9D9D9;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Righteous', cursive;
+      background-color: var(--gray);
+      color: var(--black);
+      height: 100vh; /* Ensure full height for no-scroll fit */
+      overflow: hidden; /* Prevent any overflow */
+    }
+
+    /* Nav panel floating navigation panel */
+    .nav-panel {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 60px;
+      background-color: var(--black);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 0;
+      transition: width 0.3s;
+      overflow: hidden;
+      z-index: 100;
+    }
+    .nav-panel:hover {
+      width: 220px;
+    }
+    .nav-panel .nav-item {
+      width: 100%;
+      padding: 15px 10px;
+      color: var(--yellow);
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    .nav-panel .nav-item:hover {
+      background-color: var(--yellow);
+      color: var(--black);
+    }
+    .nav-panel .nav-item i {
+      font-size: 22px;
+      min-width: 40px;
+      text-align: center;
+    }
+    .nav-panel .nav-label {
+      opacity: 0;
+      transition: opacity 0.3s;
+      user-select: none;
+    }
+    .nav-panel:hover .nav-label {
+      opacity: 1;
+      margin-left: 10px;
+    }
+    .nav-panel:not(:hover) .nav-label {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Logo styling */
+    .nav-panel .logo {
+      width: 100%;
+      text-align: center;
+      padding: 15px 0 10px 0;
+      border-bottom: 1px solid var(--yellow);
+      margin-bottom: 10px;
+    }
+    .nav-panel .logo img {
+      max-width: 50px;
+      height: auto;
+      transition: max-width 0.3s;
+    }
+    .nav-panel:hover .logo img {
+      max-width: 80px;
+    }
+
+    /* Container for page content */
+    .container {
+      margin-left: 60px;
+      padding: 15px; /* Reduced for fit */
+      height: calc(100vh - 30px); /* Fit within viewport */
+      transition: margin-left 0.3s;
+      display: grid;
+      grid-template-rows: auto 1fr auto auto; /* Added row for quick stats */
+      gap: 15px;
+    }
+    .nav-panel:hover ~ .container {
+      margin-left: 220px;
+    }
+
+    /* Top Header: Welcome and Profile Button */
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .welcome-text {
+      font-size: 28px;
+      color: var(--black);
+    }
+    .profile-btn {
+      background-color: var(--yellow);
+      color: var(--black);
+      border: none;
+      padding: 10px 15px;
+      font-family: 'Righteous', cursive;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .profile-btn i {
+      font-size: 18px;
+    }
+
+    /* Marathons Section */
+    .marathons-section {
+      background: var(--gray);
+      padding: 15px;
+      border-radius: 10px;
+    }
+    .marathons-section h3 {
+      margin-bottom: 10px;
+      font-size: 20px;
+    }
+    .marathons-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+    }
+    .marathon-card {
+      background: var(--yellow);
+      border-radius: 8px;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.2s;
+      text-align: center;
+      font-size: 16px;
+      font-weight: bold;
+    }
+    .marathon-card:hover {
+      transform: scale(1.05);
+    }
+
+    /* Quick Stats Section (Fills space) */
+    .quick-stats {
+      background: var(--gray);
+      padding: 15px;
+      border-radius: 10px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+    }
+    .stat-item {
+      text-align: center;
+      padding: 10px;
+      background: var(--yellow);
+      border-radius: 8px;
+    }
+    .stat-item h4 {
+      margin: 0 0 5px 0;
+      font-size: 16px;
+    }
+    .stat-item p {
+      margin: 0;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    /* Subtabs for Pending/Approved (Closer together) */
+    .subtabs {
+      display: flex;
+      gap: 5px; /* Reduced from 10px to move closer */
+    }
+    .subtab {
+      flex: 1;
+      background: var(--gray);
+      padding: 15px;
+      border-radius: 10px;
+      text-align: center;
+    }
+    .subtab h3 {
+      margin: 0 0 10px 0;
+      font-size: 18px;
+    }
+    .subtab p {
+      font-size: 24px;
+      font-weight: bold;
+      margin: 0 0 10px 0;
+    }
+    .subtab .details {
+      font-size: 14px;
+      text-align: left;
+      margin-top: 10px;
+    }
+    .subtab ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .subtab li {
+      margin: 5px 0;
+      font-size: 12px;
+    }
+
+    /* Responsive: Stack on smaller screens */
+    @media (max-width: 768px) {
+      .dashboard-header {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+      }
+      .container {
+        grid-template-rows: auto auto auto auto; /* Stack sections */
+        height: auto;
+        overflow: auto;
+      }
+      .marathons-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .quick-stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .subtabs {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav-panel" aria-label="User Navigation">
+  <!-- Logo at the top -->
+  <div class="logo">
+    <img src="logo.png" alt="RacerLink Logo" />
+  </div>
+  
+  <div class="nav-item" title="Dashboard">
+    <i class="fas fa-tachometer-alt"></i>
+    <span class="nav-label">Dashboard</span>
+  </div>
+  <div class="nav-item" title="Marathons">
+    <i class="fas fa-running"></i>
+    <span class="nav-label">Marathons</span>
+  </div>
+  <div class="nav-item" title="About Us">
+    <i class="fas fa-info-circle"></i>
+    <span class="nav-label">About Us</span>
+  </div>
+  <div class="nav-item" title="User Profile">
+    <i class="fas fa-user"></i>
+    <span class="nav-label">User Profile</span>
+  </div>
+</nav>
+
+<div class="container">
+  <!-- Top Header -->
+  <div class="dashboard-header">
+    <div class="welcome-text">Welcome, User!</div>
+    <a href="user-profile.html" class="profile-btn">
+      <i class="fas fa-user"></i> Profile
+    </a>
+  </div>
+
+  <!-- Marathons Section -->
+  <div class="marathons-section">
+    <h3>Latest Marathons</h3>
+    <div class="marathons-grid">
+      <a href="marathons.html" class="marathon-card">City Marathon</a>
+      <a href="marathons.html" class="marathon-card">River Run</a>
+      <a href="marathons.html" class="marathon-card">Mountain Challenge</a>
+      <a href="marathons.html" class="marathon-card">Beachside Sprint</a>
+    </div>
+  </div>
+
+  <!-- Quick Stats Section (Fills space) -->
+  <div class="quick-stats">
+    <div class="stat-item">
+      <h4>Total Runs</h4>
+      <p>47</p>
+    </div>
+    <div class="stat-item">
+      <h4>Miles Logged</h4>
+      <p>1,250</p>
+    </div>
+    <div class="stat-item">
+      <h4>Achievements</h4>
+      <p>12</p>
+    </div>
+    <div class="stat-item">
+      <h4>Upcoming Events</h4>
+      <p>3</p>
+    </div>
+  </div>
+
+  <!-- Subtabs for Pending/Approved (Closer together) -->
+  <div class="subtabs">
+    <div class="subtab">
+      <h3>Pending</h3>
+      <p>24</p>
+      <div class="details">
+        <p>Applications awaiting approval:</p>
+        <ul>
+          <li>City Marathon - Submitted</li>
+          <li>River Run - In Review</li>
+          <li>Mountain Challenge - Pending</li>
+        </ul>
+      </div>
+    </div>
+    <div class="subtab">
+      <h3>Approved</h3>
+      <p>24</p>
+      <div class="details">
+        <p>My Tickets:</p>
+        <ul>
+          <li>Beachside Sprint - Ticket #12345</li>
+          <li>Autumn Run - Ticket #67890</li>
+          <li>Winter Dash - Ticket #54321</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

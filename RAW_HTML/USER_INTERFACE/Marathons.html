@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Marathons</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Righteous&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
+
+  <style>
+    :root {
+      --black: #0B0C10;
+      --yellow: #FFCD29;
+      --gray: #D9D9D9;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Righteous', cursive;
+      background-color: var(--gray);
+      color: var(--black);
+    }
+
+    .nav-panel {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 60px;
+      background-color: var(--black);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 0;
+      transition: width 0.3s;
+      overflow: hidden;
+      z-index: 100;
+    }
+
+    .nav-panel:hover {
+      width: 220px;
+    }
+
+    .nav-panel .nav-item {
+      width: 100%;
+      padding: 15px 10px;
+      color: var(--yellow);
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    .nav-panel .nav-item:hover {
+      background-color: var(--yellow);
+      color: var(--black);
+    }
+    .nav-panel .nav-item i {
+      font-size: 22px;
+      min-width: 40px;
+      text-align: center;
+    }
+    .nav-panel .nav-label {
+      opacity: 0;
+      transition: opacity 0.3s;
+      user-select: none;
+    }
+    .nav-panel:hover .nav-label {
+      opacity: 1;
+      margin-left: 10px;
+    }
+    
+    .nav-panel:not(:hover) .nav-label {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .nav-panel .logo {
+      width: 100%;
+      text-align: center;
+      padding: 15px 0 10px 0;
+      border-bottom: 1px solid var(--yellow);
+      margin-bottom: 10px;
+    }
+    .nav-panel .logo img {
+      max-width: 50px;
+      height: auto;
+      transition: max-width 0.3s;
+    }
+    .nav-panel:hover .logo img {
+      max-width: 80px;
+    }
+
+    .container {
+      margin-left: 60px;
+      padding: 20px;
+      transition: margin-left 0.3s;
+    }
+
+    .nav-panel:hover ~ .container {
+      margin-left: 220px;
+    }
+
+    .marathons-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .marathon-card {
+      background: var(--yellow);
+      border-radius: 8px;
+      height: 340px; 
+      width: 100%;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      transition: transform 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 12px 16px 16px 16px;
+      box-sizing: border-box;
+      text-align: center;
+      position: relative;
+    }
+    .marathon-card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+    }
+
+    .event-image {
+      width: 100%;
+      height: 140px;
+      border-radius: 6px;
+      object-fit: cover;
+      margin-bottom: 12px;
+      background-color: #fff;
+    }
+    .event-title {
+      font-weight: bold;
+      font-size: 18px; 
+      color: var(--black);
+      margin: 0 0 6px 0; 
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .event-info {
+      font-size: 12px; 
+      color: var(--black);
+      opacity: 0.8;
+      margin: 2px 0;
+      height: 16px; 
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .registered-count {
+      margin-top: 20px; 
+      font-weight: 600;
+      font-size: 12px; 
+      color: var(--black);
+      opacity: 0.9;
+    }
+
+    .register-btn {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: var(--black);
+      color: var(--yellow);
+      border: none;
+      border-radius: 25px;
+      padding: 8px 25px;
+      font-family: 'Righteous', cursive;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background-color 0.3s, color 0.3s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    .register-btn:hover {
+      background-color: var(--yellow);
+      color: var(--black);
+      box-shadow: none;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      transition: opacity 0.3s ease;
+    }
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--yellow);
+      border-radius: 10px;
+      max-width: 800px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      display: flex;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      position: relative;
+    }
+
+    .modal-details {
+      flex: 1;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .modal-details h2 {
+      font-size: 28px;
+      font-weight: bold;
+      color: var(--black);
+      margin-bottom: 15px;
+    }
+    .modal-details p {
+      font-size: 16px;
+      color: var(--black);
+      margin: 8px 0;
+      opacity: 0.9;
+    }
+    .modal-details .description {
+      font-size: 14px;
+      line-height: 1.5;
+      margin-top: 15px;
+    }
+
+    .modal-image {
+      flex: 1;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-image img {
+      width: 100%;
+      max-width: 300px;
+      height: auto;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+
+    /* Back button inside modal */
+    .modal-back-btn {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      background-color: var(--black);
+      color: var(--yellow);
+      border: none;
+      border-radius: 25px;
+      padding: 8px 15px;
+      font-family: 'Righteous', cursive;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.3s, color 0.3s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      z-index: 10;
+    }
+    .modal-back-btn:hover {
+      background-color: var(--yellow);
+      color: var(--black);
+    }
+    .modal-back-btn i {
+      margin-right: 5px;
+    }
+
+    @media (max-width: 1200px) {
+      .marathons-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+    @media (max-width: 992px) {
+      .marathons-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .marathon-card {
+        height: 320px;
+      }
+      .modal-content {
+        flex-direction: column;
+        max-width: 500px;
+      }
+      .modal-image img {
+        max-width: 100%;
+      }
+    }
+    @media (max-width: 600px) {
+      .marathons-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .marathon-card {
+        height: 300px;
+      }
+      .event-image {
+        height: 120px;
+      }
+    }
+    @media (max-width: 400px) {
+      .marathons-grid {
+        grid-template-columns: 1fr;
+      }
+      .marathon-card {
+        height: 280px;
+      }
+      .event-image {
+        height: 110px;
+      }
+      .modal-content {
+        width: 95%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav-panel" aria-label="User Navigation">
+  <!-- Logo at the top -->
+  <div class="logo">
+    <img src="logo.png" alt="RacerLink Logo" />
+  </div>
+  
+  <div class="nav-item" title="Dashboard">
+    <i class="fas fa-tachometer-alt"></i>
+    <span class="nav-label">Dashboard</span>
+  </div>
+  <div class="nav-item" title="Marathons">
+    <i class="fas fa-running"></i>
+    <span class="nav-label">Marathons</span>
+  </div>
+  <div class="nav-item" title="About Us">
+    <i class="fas fa-info-circle"></i>
+    <span class="nav-label">About Us</span>
+  </div>
+  <div class="nav-item" title="User Profile">
+    <i class="fas fa-user"></i>
+    <span class="nav-label">User Profile</span>
+  </div>
+</nav>
+
+<div class="container">
+  <h1 style="font-size: 48px; font-weight: bold; color: var(--black);">Marathons</h1>
+  
+  <!-- Marathon Tabs -->
+  <div class="marathons-grid" aria-label="Marathons Grid">
+    <div class="marathon-card" data-marathon-id="1">
+      <img src="https://via.placeholder.com/300x140.png?text=City+Marathon" alt="City Marathon" class="event-image" />
+      <h2 class="event-title" title="City Marathon">City Marathon</h2>
+      <p class="event-info">Date: Aug 15, 2024</p>
+      <p class="event-info">Location: Central Park, NY</p>
+      <p class="event-info">Price: $45</p>
+      <p class="registered-count">Registered: 120</p>
+      <button class="register-btn" type="button" data-marathon-id="1">Register</button>
+    </div>
+
+    <div class="marathon-card" data-marathon-id="2">
+      <img src="https://via.placeholder.com/300x140.png?text=River+Run" alt="River Run" class="event-image" />
+      <h2 class="event-title" title="River Run">River Run</h2>
+      <p class="event-info">Date: Sep 10, 2024</p>
+      <p class="event-info">Location: Riverside, CA</p>
+      <p class="event-info">Price: $30</p>
+      <p class="registered-count">Registered: 85</p>
+      <button class="register-btn" type="button" data-marathon-id="2">Register</button>
+    </div>
+
+    <div class="marathon-card" data-marathon-id="3">
+      <img src="https://via.placeholder.com/300x140.png?text=Mountain+Challenge" alt="Mountain Challenge" class="event-image" />
+      <h2 class="event-title" title="Mountain Challenge">Mountain Challenge</h2>
+      <p class="event-info">Date: Oct 5, 2024</p>
+      <p class="event-info">Location: Denver, CO</p>
+      <p class="event-info">Price: $60</p>
+      <p class="registered-count">Registered: 60</p>
+      <button class="register-btn" type="button" data-marathon-id="3">Register</button>
+    </div>
+
+    <div class="marathon-card" data-marathon-id="4">
+      <img src="https://via.placeholder.com/300x140.png?text=Beachside+Sprint" alt="Beachside Sprint" class="event-image" />
+      <h2 class="event-title" title="Beachside Sprint">Beachside Sprint</h2>
+      <p class="event-info">Date: Nov 20, 2024</p>
+      <p class="event-info">Location: Miami, FL</p>
+      <p class="event-info">Price: $40</p>
+      <p class="registered-count">Registered: 150</p>
+      <button class="register-btn" type="button" data-marathon-id="4">Register</button>
+    </div>
+
+    <div class="marathon-card" data-marathon-id="5">
+      <img src="https://via.placeholder.com/300x140.png?text=Autumn+Run" alt="Autumn Run" class="event-image" />
+      <h2 class="event-title" title="Autumn Run">Autumn Run</h2>
+      <p class="event-info">Date: Oct 25, 2024</p>
+      <p class="event-info">Location: Boston, MA</p>
+      <p class="event-info">Price: $35</p>
+      <p class="registered-count">Registered: 95</p>
+      <button class="register-btn" type="button" data-marathon-id="5">Register</button>
+    </div>
+  </div>
+  <div class="marathons-grid" aria-label="Marathons Grid">
+    <div class="marathon-card" data-marathon-id="1">
+      <img src="https://via.placeholder.com/300x140.png?text=City+Marathon" alt="City Marathon" class="event-image" />
+      <h2 class="event-title" title="City Marathon">City Marathon</h2>
+      <p class="event-info">Date: Aug 15, 2024</p>
+      <p class="event-info">Location: Central Park, NY</p>
+      <p class="event-info">Price: $45</p>
+      <p class="registered-count">Registered: 120</p>
+      <button class="register-btn" type="button" data-marathon-id="1">Register</button>
+    </div>
+
+    <div class="marathon-card" data-marathon-id="2">
+      <img src="https://via.placeholder.com/300x140.png?text=River+Run" alt="River Run" class="event-image" />
+      <h2 class="event-title" title="River Run">River Run</h2>
+      <p class="event-info">Date: Sep 10, 2024</p>
+      <p class="event-info">Location: Riverside, CA</p>
+      <p class="event-info">Price: $30</p>
+      <p class="registered-count">Registered: 85</p>
+      <button class="register-btn" type="button" data-marathon-id="2">Register</button>
+    </div>
+
+    <div class="marathon-card" data-marathon-id="3">
+      <img src="https://via.placeholder.com/300x140.png?text=Mountain+Challenge" alt="Mountain Challenge" class="event-image" />
+      <h2 class="event-title" title="Mountain Challenge">Mountain Challenge</h2>
+      <p class="event-info">Date: Oct 5, 2024</p>
+      <p class="event-info">Location: Denver, CO</p>
+      <p class="event-info">Price: $60</p>
+      <p class="registered-count">Registered: 60</p>
+      <button class="register-btn" type="button" data-marathon-id="3">Register</button>
+    </div>
+
+    <div class="marathon-card" data-marathon-id="4">
+      <img src="https://via.placeholder.com/300x140.png?text=Beachside+Sprint" alt="Beachside Sprint" class="event-image" />
+      <h2 class="event-title" title="Beachside Sprint">Beachside Sprint</h2>
+      <p class="event-info">Date: Nov 20, 2024</p>
+      <p class="event-info">Location: Miami, FL</p>
+      <p class="event-info">Price: $40</p>
+      <p class="registered-count">Registered: 150</p>
+      <button class="register-btn" type="button" data-marathon-id="4">Register</button>
+    </div>
+
+    <div class="marathon-card" data-marathon-id="5">
+      <img src="https://via.placeholder.com/300x140.png?text=Autumn+Run" alt="Autumn Run" class="event-image" />
+      <h2 class="event-title" title="Autumn Run">Autumn Run</h2>
+      <p class="event-info">Date: Oct 25, 2024</p>
+      <p class="event-info">Location: Boston, MA</p>
+      <p class="event-info">Price: $35</p>
+      <p class="registered-count">Registered: 95</p>
+      <button class="register-btn" type="button" data-marathon-id="5">Register</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Overlay -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-content" role="dialog" aria-labelledby="modal-title" aria-describedby="modal-description">
+    <button class="modal-back-btn" id="modal-back-btn" aria-label="Back to Marathons">
+      <i class="fas fa-arrow-left"></i> Back
+    </button>
+    <div class="modal-details">
+      <h2 id="modal-title"></h2>
+      <p id="modal-date"></p>
+      <p id="modal-location"></p>
+      <p id="modal-price"></p>
+      <p id="modal-registered"></p>
+      <p class="description" id="modal-description">This is a detailed description of the marathon. Include more info like rules, sponsors, or highlights here.</p>
+    </div>
+    <div class="modal-image">
+      <img id="modal-image" src="" alt="" />
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript for modal interactivity -->
+<script>
+  const modalOverlay = document.getElementById('modal-overlay');
+  const modalBackBtn = document.getElementById('modal-back-btn');
+
+  // Marathon data
+  const marathonData = {
+    1: {
+      title: 'City Marathon',
+      date: 'Date: Aug 15, 2024',
+      location: 'Location: Central Park, NY',
+      price: 'Price: $45',
+      registered: 'Registered: 120',
+      image: 'https://via.placeholder.com/300x140.png?text=City+Marathon',
+      description: 'Join the annual City Marathon for an exhilarating run through iconic landmarks. Perfect for all skill levels!'
+    },
+    2: {
+      title: 'River Run',
+      date: 'Date: Sep 10, 2024',
+      location: 'Location: Riverside, CA',
+      price: 'Price: $30',
+      registered: 'Registered: 85',
+      image: 'https://via.placeholder.com/300x140.png?text=River+Run',
+      description: 'Experience the scenic River Run along the waterfront. A relaxing yet challenging event for runners.'
+    },
+    3: {
+      title: 'Mountain Challenge',
+      date: 'Date: Sep 10, 2024',
+      location: 'Location: Riverside, CA',
+      price: 'Price: $30',
+      registered: 'Registered: 85',
+      image: 'https://via.placeholder.com/300x140.png?text=River+Run',
+      description: 'Experience the scenic River Run along the waterfront. A relaxing yet challenging event for runners.'
+    },4: {
+      title: 'City Marathon',
+      date: 'Date: Aug 15, 2024',
+      location: 'Location: Central Park, NY',
+      price: 'Price: $45',
+      registered: 'Registered: 120',
+      image: 'https://via.placeholder.com/300x140.png?text=City+Marathon',
+      description: 'Join the annual City Marathon for an exhilarating run through iconic landmarks. Perfect for all skill levels!'
+    },
+    5: {
+      title: 'River Run',
+      date: 'Date: Sep 10, 2024',
+      location: 'Location: Riverside, CA',
+      price: 'Price: $30',
+      registered: 'Registered: 85',
+      image: 'https://via.placeholder.com/300x140.png?text=River+Run',
+      description: 'Experience the scenic River Run along the waterfront. A relaxing yet challenging event for runners.'
+    },
+    6: {
+      title: 'Mountain Challenge',
+      date: 'Date: Sep 10, 2024',
+      location: 'Location: Riverside, CA',
+      price: 'Price: $30',
+      registered: 'Registered: 85',
+      image: 'https://via.placeholder.com/300x140.png?text=River+Run',
+      description: 'Experience the scenic River Run along the waterfront. A relaxing yet challenging event for runners.'
+    },
+    7: {
+      title: 'Mountain Challenge',
+      date: 'Date: Sep 10, 2024',
+      location: 'Location: Riverside, CA',
+      price: 'Price: $30',
+      registered: 'Registered: 85',
+      image: 'https://via.placeholder.com/300x140.png?text=River+Run',
+      description: 'Experience the scenic River Run along the waterfront. A relaxing yet challenging event for runners.'
+    },8: {
+      title: 'City Marathon',
+      date: 'Date: Aug 15, 2024',
+      location: 'Location: Central Park, NY',
+      price: 'Price: $45',
+      registered: 'Registered: 120',
+      image: 'https://via.placeholder.com/300x140.png?text=City+Marathon',
+      description: 'Join the annual City Marathon for an exhilarating run through iconic landmarks. Perfect for all skill levels!'
+    },
+    9: {
+      title: 'River Run',
+      date: 'Date: Sep 10, 2024',
+      location: 'Location: Riverside, CA',
+      price: 'Price: $30',
+      registered: 'Registered: 85',
+      image: 'https://via.placeholder.com/300x140.png?text=River+Run',
+      description: 'Experience the scenic River Run along the waterfront. A relaxing yet challenging event for runners.'
+    },
+    10: {
+      title: 'Mountain Challenge',
+      date: 'Date: Sep 10, 2024',
+      location: 'Location: Riverside, CA',
+      price: 'Price: $30',
+      registered: 'Registered: 85',
+      image: 'https://via.placeholder.com/300x140.png?text=River+Run',
+      description: 'Experience the scenic River Run along the waterfront. A relaxing yet challenging event for runners.'
+    }
+  }

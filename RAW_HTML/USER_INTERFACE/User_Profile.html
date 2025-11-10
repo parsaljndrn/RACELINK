@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>User Profile</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Righteous&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
+
+  <style>
+    :root {
+      --black: #0B0C10;
+      --yellow: #FFCD29;
+      --gray: #D9D9D9;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Righteous', cursive;
+      background-color: var(--gray);
+      color: var(--black);
+      height: 100vh;
+      /* Ensure full height for no-scroll fit */
+      overflow: hidden;
+      /* Prevent any overflow */
+    }
+
+    .sidebar {
+      background-color: #111;
+      color: white;
+      width: 250px;
+      height: 594px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      font-weight: bold;
+      font-size: 100px;
+    }
+
+    /* Nav panel floating navigation panel */
+    .nav-panel {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 60px;
+      background-color: var(--black);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 0;
+      transition: width 0.3s;
+      overflow: hidden;
+      z-index: 100;
+    }
+
+    .nav-panel:hover {
+      width: 220px;
+    }
+
+    .nav-panel .nav-item {
+      width: 100%;
+      padding: 15px 10px;
+      color: var(--yellow);
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .nav-panel .nav-item:hover {
+      background-color: var(--yellow);
+      color: var(--black);
+    }
+
+    .nav-panel .nav-item i {
+      font-size: 22px;
+      min-width: 40px;
+      text-align: center;
+    }
+
+    .nav-panel .nav-label {
+      opacity: 0;
+      transition: opacity 0.3s;
+      user-select: none;
+    }
+
+    .nav-panel:hover .nav-label {
+      opacity: 1;
+      margin-left: 10px;
+    }
+
+    .nav-panel:not(:hover) .nav-label {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Logo styling */
+    .nav-panel .logo {
+      width: 100%;
+      text-align: center;
+      padding: 15px 0 10px 0;
+      border-bottom: 1px solid var(--yellow);
+      margin-bottom: 10px;
+    }
+
+    .nav-panel .logo img {
+      max-width: 50px;
+      height: auto;
+      transition: max-width 0.3s;
+    }
+
+    .nav-panel:hover .logo img {
+      max-width: 80px;
+    }
+
+    /* Container for page content */
+    .container {
+      margin-left: 60px;
+      padding: 20px;
+      max-width: 900px;
+      /* Increased for layout, but compact */
+      height: calc(100vh - 40px);
+      /* Fit within viewport */
+      transition: margin-left 0.3s;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      /* Center vertically for no-scroll fit */
+    }
+
+    .nav-panel:hover~.container {
+      margin-left: 220px;
+    }
+
+    /* Profile container with grid layout */
+    .profile-container {
+      background: var(--gray);
+      border-radius: 10px;
+      padding: 15px;
+      /* Reduced padding for compactness */
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      /* Left: info, Right: stats */
+      gap: 20px;
+      height: 100%;
+      /* Fill container */
+    }
+
+    /* Left side: Profile info */
+    .profile-info {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+    }
+
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 5px;
+      /* Reduced from 15px to bring additional info closer */
+    }
+
+    .profile-pic {
+      width: 120px;
+      /* Slightly smaller for fit */
+      height: 120px;
+      background: var(--yellow);
+      border-radius: 8px;
+    }
+
+    .profile-details h2 {
+      font-size: 24px;
+      margin: 0 0 5px 0;
+    }
+
+    .profile-details p {
+      font-size: 14px;
+      margin: 2px 0;
+    }
+
+    .additional-info h3 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .additional-info p {
+      font-size: 14px;
+      margin: 5px 0;
+    }
+
+    .stats-section {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .logout-btn {
+      background-color: var(--yellow);
+      color: var(--black);
+      border: none;
+      padding: 10px 30px;
+      font-family: 'Righteous', cursive;
+      font-size: 14px;
+      cursor: pointer;
+      border-radius: 5px;
+      align-self: flex-start;
+    }
+
+    .stats-section {
+      display: flex;
+      align-items: center;
+    }
+
+    .stats {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .stats>div {
+      background: var(--gray);
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      border: 2px solid var(--yellow);
+    }
+
+    .stats h3 {
+      font-size: 16px;
+      margin: 0 0 5px 0;
+    }
+
+    .stats p {
+      font-size: 24px;
+      font-weight: bold;
+      margin: 0;
+    }
+
+    /* Responsive: Stack on smaller screens */
+    @media (max-width: 768px) {
+      .profile-container {
+        grid-template-columns: 1fr;
+        /* Stack vertically */
+        grid-template-rows: auto auto;
+      }
+
+      .stats-section {
+        order: -1;
+        /* Move stats/logout to top on mobile */
+      }
+
+      .stats {
+        flex-direction: row;
+        /* Side-by-side on mobile */
+        gap: 10px;
+      }
+
+      .stats>div {
+        flex: 1;
+      }
+
+      .container {
+        height: auto;
+        /* Allow scrolling on mobile if needed */
+        overflow: auto;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav class="nav-panel" aria-label="User Navigation">
+    <!-- Logo at the top -->
+    <div class="logo">
+      <img src="logo.png" alt="RacerLink Logo" />
+    </div>
+
+    <div class="nav-item" title="Dashboard">
+      <i class="fas fa-tachometer-alt"></i>
+      <span class="nav-label">Dashboard</span>
+    </div>
+    <div class="nav-item" title="Marathons">
+      <i class="fas fa-running"></i>
+      <span class="nav-label">Marathons</span>
+    </div>
+    <div class="nav-item" title="About Us">
+      <i class="fas fa-info-circle"></i>
+      <span class="nav-label">About Us</span>
+    </div>
+    <div class="nav-item" title="User Profile">
+      <i class="fas fa-user"></i>
+      <span class="nav-label">User Profile</span>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h1 style="text-align: center; margin-bottom: 10px;">Account Profile</h1>
+
+    <div class="profile-container">
+      <!-- Left Side: Curated Info -->
+      <div class="profile-info">
+        <div class="profile-header">
+          <div class="profile-pic"></div>
+          <div class="profile-details">
+            <h2>User Profile</h2>
+            <p>Member since: 2020</p>
+            <p>Last login: [date]</p>
+          </div>
+        </div>
+
+        <div class="additional-info">
+          <h3>Additional Information</h3>
+          <p>Email: user@example.com</p>
+          <p>Phone: (123) 456-7890</p>
+          <p>Address: 123 Street, City</p>
+        </div>
+      </div>
+
+      <!-- Right Side: Log Out above Stats -->
+      <div class="stats-section">
+        <div>
+          <button class="logout-btn">Log Out</button>
+        </div>
+        <div class="stats">
+          <div>
+            <h3>Pending</h3>
+            <p>5</p>
+          </div>
+          <div>
+            <h3>Approved</h3>
+            <p>12</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

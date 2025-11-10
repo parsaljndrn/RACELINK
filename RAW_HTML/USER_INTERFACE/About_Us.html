@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>About Us</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Righteous&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
+
+  <style>
+    :root {
+      --black: #0B0C10;
+      --yellow: #FFCD29;
+      --gray: #D9D9D9;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Righteous', cursive;
+      background-color: var(--gray);
+      color: var(--black);
+    }
+
+    /* Sidebar floating navigation panel */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 60px;
+      background-color: var(--black);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 0;
+      transition: width 0.3s;
+      overflow: hidden;
+      z-index: 100;
+    }
+
+    .sidebar:hover {
+      width: 220px;
+    }
+
+    .sidebar .nav-item {
+      width: 100%;
+      padding: 15px 10px;
+      color: var(--yellow);
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    .sidebar .nav-item:hover {
+      background-color: var(--yellow);
+      color: var(--black);
+    }
+    .sidebar .nav-item i {
+      font-size: 22px;
+      min-width: 40px;
+      text-align: center;
+    }
+    .sidebar .nav-label {
+      opacity: 0;
+      transition: opacity 0.3s;
+      user-select: none;
+    }
+    .sidebar:hover .nav-label {
+      opacity: 1;
+      margin-left: 10px;
+    }
+    
+    /* Hide text but show icons on default (not hover) */
+    .sidebar:not(:hover) .nav-label {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Container for page content - leaves space for sidebar */
+    .container {
+      margin-left: 60px;
+      padding: 20px;
+      transition: margin-left 0.3s;
+      position: relative;
+    }
+
+    .sidebar:hover ~ .container {
+      margin-left: 220px;
+    }
+
+    .rachelink-vertical {
+      font-size: 48px;
+      font-weight: bold;
+      color: var(--black);
+      position: fixed;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%) rotate(-90deg);
+      cursor: default;
+      user-select: none;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="sidebar" aria-label="User Navigation">
+  <div class="nav-item" title="Dashboard">
+    <i class="fas fa-tachometer-alt"></i>
+    <span class="nav-label">Dashboard</span>
+  </div>
+  <div class="nav-item" title="Marathons">
+    <i class="fas fa-running"></i>
+    <span class="nav-label">Marathons</span>
+  </div>
+  <div class="nav-item" title="About Us">
+    <i class="fas fa-info-circle"></i>
+    <span class="nav-label">About Us</span>
+  </div>
+  <div class="nav-item" title="User Profile">
+    <i class="fas fa-user"></i>
+    <span class="nav-label">User Profile</span>
+  </div>
+</nav>
+
+<div class="container">
+  <h1 style="font-size: 48px; font-weight: bold; color: var(--black);">About Us</h1>
+  <div style="background: var(--yellow); height: 300px; border-radius: 8px; margin-top: 20px;">
+    <!-- About us content placeholder -->
+  </div>
+  <div class="rachelink-vertical">RACELINK</div>
+</div>
+
+</body>
+</html>
+
