@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Login</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Righteous&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --black: #0B0C10;
+      --yellow: #FFCD29;
+      --gray: #D9D9D9;
+    }
+    body {
+      margin: 0;
+      font-family: 'Righteous', cursive;
+      background-color: var(--gray);
+      background-image: url('images/background.png');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-attachment: fixed;
+      color: var(--black);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: start;
+      height: 100vh;
+      padding-top: 50px;
+    }
+    .container {
+      max-width: 500px;
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px #ccc;
+      text-align: center;
+    }
+    button.yellow-btn {
+      background-color: var(--yellow);
+      color: var(--black);
+      border: none;
+      padding: 10px 20px;
+      font-family: 'Righteous', cursive;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 10px;
+    }
+    input[type="email"], input[type="password"] {
+      font-family: 'Righteous', cursive;
+      width: 100%;
+      padding: 8px;
+      margin: 10px 0 20px 0;
+      border: 2px solid var(--black);
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    label {
+      font-weight: 700;
+      display: block;
+      margin-bottom: 6px;
+      text-align: left;
+      color: var(--black);
+    }
+  </style>
+</head>
+<body>
+
+<div class="container" id="login-page">
+  <h1>Welcome to RacerLink</h1>
+
+  <div id="choice-section">
+    <button class="yellow-btn" onclick="showLoginSelection()">Log In First</button>
+    <button class="yellow-btn" onclick="browseAsGuest()">Browse</button>
+  </div>
+
+  <div id="login-selection" style="display:none;">
+    <p style="font-size: 24px;">Choose Log In Type:</p>
+    <button class="yellow-btn" onclick="showUserLogin()">User Log In / Sign Up</button>
+    <button class="yellow-btn" onclick="showOrganizerLogin()">Organizer Log In</button>
+    <button class="yellow-btn" onclick="cancelLogin()">Cancel</button>
+  </div>
+
+  <form id="user-login-form" style="display:none;" onsubmit="submitUserLogin(event)">
+    <h2>User Log In / Sign Up</h2>
+    <label for="user-email">Email:</label>
+    <input id="user-email" type="email" placeholder="Enter Email" required />
+    <label for="user-password">Password:</label>
+    <input id="user-password" type="password" placeholder="Enter Password" required />
+    <button class="yellow-btn" type="submit">Log In / Sign Up</button>
+    <button type="button" class="yellow-btn" onclick="cancelLogin()">Cancel</button>
+  </form>
+
+  <form id="organizer-login-form" style="display:none;" onsubmit="submitOrganizerLogin(event)">
+    <h2>Organizer Log In</h2>
+    <label for="org-email">Email:</label>
+    <input id="org-email" type="email" placeholder="Enter Email" required />
+    <label for="org-password">Password:</label>
+    <input id="org-password" type="password" placeholder="Enter Password" required />
+    <button class="yellow-btn" type="submit">Log In</button>
+    <button type="button" class="yellow-btn" onclick="cancelLogin()">Cancel</button>
+  </form>
+</div>
+
+<script>
+  function showLoginSelection() {
+    document.getElementById('choice-section').style.display = 'none';
+    document.getElementById('login-selection').style.display = 'block';
+  }
+  function showUserLogin() {
+    document.getElementById('login-selection').style.display = 'none';
+    document.getElementById('user-login-form').style.display = 'block';
+  }
+  function showOrganizerLogin() {
+    document.getElementById('login-selection').style.display = 'none';
+    document.getElementById('organizer-login-form').style.display = 'block';
+  }
+  function cancelLogin() {
+    document.getElementById('login-selection').style.display = 'none';
+    document.getElementById('user-login-form').style.display = 'none';
+    document.getElementById('organizer-login-form').style.display = 'none';
+    document.getElementById('choice-section').style.display = 'block';
+  }
+  function browseAsGuest() {
+    alert('Browsing as guest...');
+    // Redirect or show events page logic here
+  }
+  function submitUserLogin(e) {
+    e.preventDefault();
+    alert('User login submitted');
+    // Implement login logic here
+  }
+  function submitOrganizerLogin(e) {
+    e.preventDefault();
+    alert('Organizer login submitted');
+    // Implement login logic here
+  }
+</script>
+
+</body>
+</html>
