@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Edit Marathon</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Righteous&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
+
+  <style>
+    :root {
+      --black: #0B0C10;
+      --yellow: #FFCD29;
+      --gray: #D9D9D9;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Righteous', cursive;
+      background-color: var(--gray);
+      color: var(--black);
+    }
+
+    .nav-panel {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 60px;
+      background-color: var(--black);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 0;
+      transition: width 0.3s;
+      overflow: hidden;
+      z-index: 100;
+    }
+
+    .nav-panel:hover {
+      width: 220px;
+    }
+
+    .nav-panel .nav-item {
+      width: 100%;
+      padding: 15px 10px;
+      color: var(--yellow);
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    .nav-panel .nav-item:hover {
+      background-color: var(--yellow);
+      color: var(--black);
+    }
+    .nav-panel .nav-item.active {
+      background-color: var(--yellow);
+      color: var(--black);
+    }
+    .nav-panel .nav-item i {
+      font-size: 22px;
+      min-width: 40px;
+      text-align: center;
+    }
+    .nav-panel .nav-label {
+      opacity: 0;
+      transition: opacity 0.3s;
+      user-select: none;
+    }
+    .nav-panel:hover .nav-label {
+      opacity: 1;
+      margin-left: 10px;
+    }
+    
+    .nav-panel:not(:hover) .nav-label {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .nav-panel .logo {
+      width: 100%;
+      text-align: center;
+      padding: 15px 0 10px 0;
+      border-bottom: 1px solid var(--yellow);
+      margin-bottom: 10px;
+    }
+    .nav-panel .logo img {
+      max-width: 50px;
+      height: auto;
+      transition: max-width 0.3s;
+    }
+    .nav-panel:hover .logo img {
+      max-width: 80px;
+    }
+
+    .container {
+      margin-left: 60px;
+      padding: 20px;
+      transition: margin-left 0.3s;
+    }
+
+    .nav-panel:hover ~ .container {
+      margin-left: 220px;
+    }
+
+    
+    .edit-marathon-form {
+      background-color: var(--yellow);
+      border-radius: 10px;
+      padding: 30px;
+      max-width: 800px;
+      margin: 20px auto;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 16px;
+      font-weight: bold;
+      color: var(--black);
+      margin-bottom: 5px;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid var(--black);
+      border-radius: 5px;
+      font-family: 'Righteous', cursive;
+      font-size: 14px;
+      background-color: #fff;
+      color: var(--black);
+      box-sizing: border-box;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 20px;
+    }
+
+    .form-row .form-group {
+      flex: 1;
+    }
+
+    .btn {
+      background-color: var(--black);
+      color: var(--yellow);
+      border: none;
+      border-radius: 25px;
+      padding: 12px 30px;
+      font-family: 'Righteous', cursive;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      margin-right: 10px;
+    }
+
+    .btn:hover {
+      background-color: #D9D9D9;
+      color: var(--black);
+    }
+
+    .btn-primary {
+      background-color: var(--black);
+      color: var(--yellow);
+    }
+
+    .btn-primary:hover {
+      background-color: #D9D9D9;
+      color: var(--black);
+    }
+
+    @media (max-width: 600px) {
+      .form-row {
+        flex-direction: column;
+      }
+      .edit-marathon-form {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav-panel" aria-label="Organizer Navigation">
+  <div class="logo">
+    <img src="logo.png" alt="RacerLink Logo" />
+  </div>
+  
+  <div class="nav-item" title="Dashboard">
+    <i class="fas fa-tachometer-alt"></i>
+    <span class="nav-label">Dashboard</span>
+  </div>
+  <div class="nav-item" title="Create Event">
+    <i class="fas fa-plus-circle"></i>
+    <span class="nav-label">Create Event</span>
+  </div>
+  <div class="nav-item active" title="Manage Marathons">
+    <i class="fas fa-cogs"></i>
+    <span class="nav-label">Manage Marathons</span>
+  </div>
+  <div class="nav-item" title="Registrations">
+    <i class="fas fa-users"></i>
+    <span class="nav-label">Registrations</span>
+  </div>
+  <div class="nav-item" title="Reports">
+    <i class="fas fa-chart-bar"></i>
+    <span class="nav-label">Reports</span>
+  </div>
+  <div class="nav-item" title="User Profile">
+    <i class="fas fa-user"></i>
+    <span class="nav-label">User Profile</span>
+  </div>
+  <div class="nav-item" title="Logout">
+    <i class="fas fa-sign-out-alt"></i>
+    <span class="nav-label">Logout</span>
+  </div>
+</nav>
+
+<div class="container">
+  <h1 style="font-size: 48px; font-weight: bold; color: var(--black);">Edit Marathon</h1>
+  <p style="font-size: 18px; color: var(--black); opacity: 0.8;">Update your marathon event details</p>
+  
+  <form class="edit-marathon-form" action="#" method="post">  <!-- Backend updating -->
+    <input type="hidden" name="event_id" value="1">  <!-- Example event ID (replace with dynamic value daw ehe) -->
+    
+    <div class="form-group">
+      <label for="event-name">Event Name *</label>
+      <input type="text" id="event-name" name="event_name" value="City Marathon 2025" required>  <!-- example -->
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label for="event-date">Event Date *</label>
+        <input type="date" id="event-date" name="event_date" value="2025-11-15" required>  <!--  example -->
+      </div>
+      <div class="form-group">
+        <label for="distance">Distance *</label>
+        <input type="text" id="distance" name="distance" value="42.2 km" required>  <!--  example -->
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label for="location">Location *</label>
+      <input type="text" id="location" name="location" value="Downtown City Center" required>  <!--  example -->
+    </div>
+    
+    <div class="form-group">
+      <label for="registration-fee">Registration Fee *</label>
+      <input type="number" id="registration-fee" name="registration_fee" value="50" required>  <!--  example -->
+    </div>
+    
+    <div class="form-group">
+      <label for="event-description">Event Description *</label>
+      <textarea id="event-description" name="event_description" required>Join the annual City Marathon for an exhilarating run through iconic landmarks. Perfect for all skill levels!</textarea>  <!-- Pre-filled example -->
+    </div>
+    
+    <div style="text-align: center; margin-top: 30px;">
+      <a href="manage_my_marathons.html" class="btn">Cancel</a>  <!-- back to Manage Marathons -->
+      <button type="submit" class="btn btn-primary">Save Changes</button> <!-- backend SKSK-->
+    </div>
+  </form>
+</div>
+
+</body>
+</html>
