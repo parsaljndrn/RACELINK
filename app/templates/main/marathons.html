@@ -341,17 +341,17 @@
         <div class="logo">
             <img src="{{ url_for('static', filename='images/logo.png') }}" alt="RaceLink Logo" />
         </div>
+        <div class="nav-item" title="Marathons" onclick="home()">
+            <i class="fas fa-home"></i>
+            <span class="nav-label">Home</span>
+        </div>
         <div class="nav-item" title="Marathons" onclick="marathon()">
             <i class="fas fa-running"></i>
             <span class="nav-label">Marathons</span>
         </div>
-        <div class="nav-item" title="User Profile" onclick="userProfile()">
-            <i class="fas fa-user"></i>
-            <span class="nav-label">User Profile</span>
-        </div>
-        <div class="nav-item logout-btn" title="Log Out" onclick="logoutUser()">
+        <div class="nav-item logout-btn" title="Log Out" onclick="loginUser()">
             <i class="fas fa-sign-out-alt"></i>
-            <span class="nav-label">Log Out</span>
+            <span class="nav-label">LOG IN</span>
         </div>
     </nav>
 
@@ -430,22 +430,14 @@
             const modals = document.querySelectorAll('.modal-overlay');
             modals.forEach(modal => modal.style.display = 'none');
         };
-
+        function home() {
+          window.location.href = "{{ url_for('main.home') }}";
+        }
         function marathon() {
-          window.location.href = "{{ url_for('runner.view_marathons') }}";
+          window.location.href = "{{ url_for('runner.view') }}";
         }
-      
-        function aboutUs() {
-          window.location.href = "{{ url_for('main.about') }}"; // replace 'main.about' with your actual route
-        }
-      
-        function userProfile() {
-          window.location.href = "{{ url_for('runner.profile') }}"; // replace 'runner.my_profile' with your profile route
-        }
-        function logoutUser() {
-            if (confirm("Are you sure you want to log out?")) {
-                window.location.href = "/logout";
-            }
+        function loginUser() {
+                window.location.href = "{{ url_for('auth.login') }}";
         }
 
         function openBookModal(id, title, date, location, fee, description) {

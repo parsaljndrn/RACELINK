@@ -72,10 +72,15 @@ class Booking(db.Model):
     payment_status = db.Column(db.String(20), default='pending')
     bib_number = db.Column(db.String(20), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    status = db.Column(db.String(20), nullable=False, default='pending') 
 
-    payment_proof = db.relationship('PaymentProof', backref='booking', uselist=False)
+    payment_proof = db.relationship(
+        'PaymentProof',
+        backref='booking',  # This creates `payment.booking` automatically
+        uselist=False
+    )
 
-    # Enforce uniqueness per marathon
+    # Enforce unique bib per marathon
     __table_args__ = (
         UniqueConstraint('marathon_id', 'bib_number', name='unique_bib_per_marathon'),
     )

@@ -13,14 +13,14 @@
 
 <div class="home-page">
   <nav>
-    <a href="{{ url_for('runner.view_marathons') }}">Marathons</a>
+    <a href="{{ url_for('runner.view') }}">Marathons</a>
     <a href="{{ url_for('main.about') }}">About Us</a>
   </nav>
   <h1>Your All-in-One<br />Running <br />Community</h1>
   <p class="subheading">Discover, Connect, and Join Marathons Near You</p>
  <div class="buttons">
     <button class="round-button" onclick="window.location.href='{{ url_for('auth.login') }}'">Log In</button>
-    <button class="round-button" onclick="window.location.href='{{ url_for('runner.view_marathons') }}'">Browse as Guest</button>
+    <button class="round-button" onclick="window.location.href='{{ url_for('runner.view') }}'">Browse as Guest</button>
 </div>
 </div>
 

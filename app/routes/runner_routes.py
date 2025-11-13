@@ -4,8 +4,14 @@ from app import db
 from app.models import MarathonEvent, Booking, PaymentProof, MarathonDistance
 import os
 from werkzeug.utils import secure_filename
+from datetime import date
 
 runner = Blueprint('runner', __name__, url_prefix='/runner')
+
+@runner.route('/view')
+def view():
+    marathons = MarathonEvent.query.all()
+    return render_template('main/marathons.html', marathons=marathons)
 
 #viewing all marathons
 @runner.route('/marathons')
@@ -100,3 +106,63 @@ def cancel_booking(booking_id):
     db.session.commit()
     flash('Booking cancelled.', 'warning')
     return redirect(url_for('runner.my_bookings'))
+
+
+@runner.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    runner_profile = current_user.runner_profile
+
+    # Handle form submission for profile update
+    if request.method == 'POST':
+        current_user.name = request.form['name']
+        current_user.email = request.form['email']
+        runner_profile.address = request.form['address']
+        runner_profile.phone = request.form['phone']
+        runner_profile.gender = request.form['gender']
+        runner_profile.birthdate = request.form['birthdate']
+        runner_profile.emergency_contact_name = request.form['emergency_contact_name']
+        runner_profile.emergency_contact_number = request.form['emergency_contact_number']
+        db.session.commit()
+        flash('Profile updated successfully!', 'success')
+        return redirect(url_for('runner.profile'))
+
+    # Calculate age
+    age = None
+    if runner_profile.birthdate:
+        today = date.today()
+        age = today.year - runner_profile.birthdate.year - (
+            (today.month, today.day) < (runner_profile.birthdate.month, runner_profile.birthdate.day)
+        )
+
+    # Get all approved payments for the current user
+    approved_payments = (
+        PaymentProof.query
+        .join(Booking)
+        .filter(
+            Booking.user_id == current_user.id,
+            PaymentProof.status.ilike('Approved')  # case-insensitive
+        )
+        .options(db.joinedload(PaymentProof.booking))  # ensure booking is loaded
+        .all()
+    )
+
+    # Get all pending payments for the current user
+    pending_payments = (
+        PaymentProof.query
+        .join(Booking)
+        .filter(
+            Booking.user_id == current_user.id,
+            PaymentProof.status.ilike('Pending')
+        )
+        .options(db.joinedload(PaymentProof.booking))  # ensure booking is loaded
+        .all()
+    )
+    return render_template(
+        'runner/profile.html',
+        user=current_user,
+        runner=runner_profile,
+        age=age,
+        pending_payments =pending_payments,
+        approved_payments =approved_payments
+    )

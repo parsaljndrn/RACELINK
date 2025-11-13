@@ -1,37 +1,440 @@
-{% extends 'base_admin.html' %}
-{% block content %}
-<h2>Manage Marathons</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Manage Marathons</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Righteous&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
 
-<ul>
-<h2>All Marathon Events</h2>
+  <style>
+    :root {
+      --black: #0B0C10;
+      --yellow: #FFCD29;
+      --gray: #D9D9D9;
+    }
 
-<button type="button" onclick="openAddModal()">ADD EVENT</button>
-{% for m in marathons %}
-<li class="marathon-item" data-id="{{ m.id }}">
-  {{ m.title }} - {{ m.date }} ({{ m.location }})
-  <button type="button" 
-    onclick='openViewModal("{{ m.id }}", "{{ m.title }}", "{{ m.date.strftime("%Y-%m-%d") }}", "{{ m.location }}", "{{ m.distance }}", "{{ m.registration_fee }}")'>
-  View
-  </button>
-</li>
-{% endfor %}
-</ul>
+    body {
+      margin: 0;
+      font-family: 'Righteous', cursive;
+      background-color: var(--gray);
+      color: var(--black);
+    }
+
+    .nav-panel {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 60px;
+      background-color: var(--black);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 0;
+      transition: width 0.3s;
+      overflow: hidden;
+      z-index: 100;
+    }
+
+    .nav-panel:hover {
+      width: 220px;
+    }
+
+    .nav-panel .nav-item {
+      width: 100%;
+      padding: 15px 10px;
+      color: var(--yellow);
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    .nav-panel .nav-item:hover {
+      background-color: var(--yellow);
+      color: var(--black);
+    }
+    .nav-panel .nav-item.active {
+      background-color: var(--yellow);
+      color: var(--black);
+    }
+    .nav-panel .nav-item i {
+      font-size: 22px;
+      min-width: 40px;
+      text-align: center;
+    }
+    .nav-panel .nav-label {
+      opacity: 0;
+      transition: opacity 0.3s;
+      user-select: none;
+    }
+    .nav-panel:hover .nav-label {
+      opacity: 1;
+      margin-left: 10px;
+    }
+    
+    .nav-panel:not(:hover) .nav-label {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .nav-panel .logo {
+      width: 100%;
+      text-align: center;
+      padding: 15px 0 10px 0;
+      border-bottom: 1px solid var(--yellow);
+      margin-bottom: 10px;
+    }
+    .nav-panel .logo img {
+      max-width: 50px;
+      height: auto;
+      transition: max-width 0.3s;
+    }
+    .nav-panel:hover .logo img {
+      max-width: 80px;
+    }
+
+    .container {
+      margin-left: 60px;
+      padding: 20px;
+      transition: margin-left 0.3s;
+    }
+
+    .nav-panel:hover ~ .container {
+      margin-left: 220px;
+    }
+
+    /* Manage Marathons specific styles */
+    .manage-marathons-list {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .marathon-card {
+      background: var(--yellow);
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      transition: transform 0.2s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .marathon-card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+    }
+
+    .marathon-details {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .marathon-title {
+      font-size: 20px;
+      font-weight: bold;
+      color: var(--black);
+    }
+
+    .page-title {
+      font-size: 48px;
+      font-weight: bold;
+      color: var(--black);
+      margin-left: 0; 
+      margin-bottom: 15px;
+    }
+
+    .marathon-info-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .marathon-info-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .marathon-info-label {
+      font-size: 14px;
+      opacity: 0.6;
+      color: var(--black);
+    }
+
+    .marathon-info-value {
+      font-size: 16px;
+      opacity: 0.8;
+      color: var(--black);
+    }
+
+    .marathon-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .kebab-menu {
+      background: none;
+      border: none;
+      color: var(--black);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 5px;
+    }
+
+    .btn {
+      background-color: var(--black);
+      color: var(--yellow);
+      border: none;
+      border-radius: 25px;
+      padding: 10px 20px;
+      font-family: 'Righteous', cursive;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.3s, color 0.3s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .btn:hover {
+      background-color: var(--yellow);
+      color: var(--black);
+    }
+
+    .btn-create {
+      border: 2px solid #ffb800;
+      background-color: white;
+      color: var(--black);
+    }
+
+    .btn-create:hover {
+      background-color: #ffb800;
+      color: var(--black);
+    }
+
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: var(--gray);
+      border-radius: 14px;
+      padding: 20px;
+      max-width: 600px;
+      width: 90%;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .modal-details {
+      margin-bottom: 20px;
+    }
+
+    .modal-details p {
+      margin: 5px 0;
+      font-size: 14px;
+      color: var(--black);
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .modal-option {
+      padding: 6px 12px;  
+      font-size: 12px;  
+      background: var(--yellow);
+      color: var(--black);
+      border: none;
+      border-radius: 8px;
+      font-family: 'Righteous', cursive;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .modal-option:hover {
+      background: var(--black);
+      color: var(--yellow);
+    }
+
+    .modal-delete {
+      background: red;
+      color: white;
+    }
+
+    .modal-delete:hover {
+      background: darkred;
+    }
+
+    @media (max-width: 992px) {
+      .marathon-info-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .marathon-card {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .marathon-actions {
+        flex-direction: row;
+        width: 100%;
+        justify-content: flex-end;
+      }
+    }
+    @media (max-width: 600px) {
+      .marathon-info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Additional styles for forms and tables in modals */
+    .modal-content form {
+      display: flex;
+      flex-direction: column;
+    }
+    .modal-content label {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    .modal-content input, .modal-content textarea, .modal-content select {
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .modal-content button {
+      margin-top: 10px;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .modal-content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    .modal-content th, .modal-content td {
+      padding: 8px;
+      text-align: left;
+      border: 1px solid #ddd;
+    }
+    .distance-entry, .distance-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .distance-entry input, .distance-group input {
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+    <!-- NAVIGATION BAR -->
+    <nav class="nav-panel" aria-label="User Navigation">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="RaceLink Logo" />
+        </div>
+        <div class="nav-item" title="Marathons" onclick="manageMarathons()">
+            <i class="fas fa-running"></i>
+            <span class="nav-label">Marathons</span>
+        </div>
+        <div class="nav-item logout-btn" title="Log Out" onclick="logoutUser()">
+            <i class="fas fa-sign-out-alt"></i>
+            <span class="nav-label">Log Out</span>
+        </div>
+    </nav>
+
+<div class="container">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div>
+      <h1 class="page-title">Manage Marathons</h1>
+      <p style="font-size: 18px; color: var(--black); opacity: 0.8; margin: 0;">Edit or delete your marathon events</p>
+    </div>
+    <button class="btn btn-create" onclick="openAddModal()">
+      <i class="fas fa-plus" style="margin-right: 8px;"></i>
+      Create Marathon
+    </button>
+  </div>
+
+  <!-- Marathon List -->
+  <div class="manage-marathons-list" aria-label="Manage Marathons List">
+    {% for m in marathons %}
+    <div class="marathon-card">
+      <div class="marathon-details">
+        <h2 class="marathon-title">{{ m.title }}</h2>
+        <div class="marathon-info-grid">
+          <div class="marathon-info-item">
+            <span class="marathon-info-label">Date</span>
+            <span class="marathon-info-value">{{ m.date.strftime("%b %d, %Y") }}</span>
+          </div>
+          <div class="marathon-info-item">
+            <span class="marathon-info-label">Location</span>
+            <span class="marathon-info-value">{{ m.location }}</span>
+          </div>
+          <div class="marathon-info-item">
+            <span class="marathon-info-label">Distances</span>
+            <span class="marathon-info-value">
+              {% for d in m.distances %}
+                {{ d.distance }}{% if not loop.last %}, {% endif %}
+              {% endfor %}
+            </span>
+          </div>
+          <div class="marathon-info-item">
+            <span class="marathon-info-label">Price</span>
+            <span class="marathon-info-value">
+              {% for d in m.distances %}
+                ₱{{ d.price }}{% if not loop.last %}, {% endif %}
+              {% endfor %}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="marathon-actions">
+        <button class="kebab-menu" onclick='openViewModal("{{ m.id }}", "{{ m.title }}", "{{ m.date.strftime("%Y-%m-%d") }}", "{{ m.location }}", "{{ m.distance }}", "{{ m.registration_fee }}")'>
+          <i class="fas fa-ellipsis-v"></i>
+        </button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
 
 <!-- ADD MODAL -->
-<div id="addModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5);">
-  <div style="background:white; padding:20px; margin:100px auto; width:400px; border-radius:10px;">
+<div id="addModal" class="modal">
+  <div class="modal-content">
     <form id="addForm" action="{{ url_for('admin.add_marathon') }}" method="POST">
-      <label>Marathon Title:</label><br>
-      <input type="text" name="title" required><br><br>
+      <label>Marathon Title:</label>
+      <input type="text" name="title" required>
 
-      <label>Description:</label><br>
-      <textarea name="description" rows="4" required></textarea><br><br>
+      <label>Description:</label>
+      <textarea name="description" rows="4" required></textarea>
 
-      <label>Date:</label><br>
-      <input type="date" name="date" required><br><br>
+      <label>Date:</label>
+      <input type="date" name="date" required>
 
-      <label>Location:</label><br>
-      <input type="text" name="location" required><br><br>
+      <label>Location:</label>
+      <input type="text" name="location" required>
 
       <h3>🏁 Distances & Prices</h3>
       <div id="distanceContainer">
@@ -42,41 +445,40 @@
       </div>
       <button type="button" onclick="addDistanceField()">➕ Add Another Distance</button>
 
-      <br><br>
-      <button type="submit">Add Marathon</button>
-      <button type="button" onclick="closeAddModal()">Cancel</button>
+      <button type="submit" class="btn">Add Marathon</button>
+      <button type="button" onclick="closeAddModal()" class="btn">Cancel</button>
     </form>
   </div>
 </div>
 
-<!-- EDIT MODAL (hidden by default) -->
-<div id="editModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5);">
-  <div style="background:white; padding:20px; margin:100px auto; width:400px; border-radius:10px;">
+<!-- EDIT MODAL -->
+<div id="editModal" class="modal">
+  <div class="modal-content">
     <h2 id="editTitle">Edit Marathon</h2>
     
     <form id="editForm" method="POST">
-      <label>Title:</label><br>
-      <input type="text" id="editName" name="name" required><br><br>
+      <label>Title:</label>
+      <input type="text" id="editName" name="name" required>
 
-      <label>Date:</label><br>
-      <input type="date" id="editDate" name="date" required><br><br>
+      <label>Date:</label>
+      <input type="date" id="editDate" name="date" required>
 
-      <label>Location:</label><br>
-      <input type="text" id="editLocation" name="location" required><br><br>
+      <label>Location:</label>
+      <input type="text" id="editLocation" name="location" required>
 
       <h3>🏁 Edit Distances</h3>
       <div id="editDistanceContainer"></div>
       <button type="button" onclick="addEditDistanceField()">➕ Add Distance</button>
 
-      <button type="submit">Update</button>
-      <button type="button" onclick="closeEditModal()">Cancel</button>
+      <button type="submit" class="btn">Update</button>
+      <button type="button" onclick="closeEditModal()" class="btn">Cancel</button>
     </form>
   </div>
 </div>
 
-<!-- VIEW DETAILS MODAL (hidden by default) -->
-<div id="viewModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5);">
-  <div style="background:white; padding:20px; margin:100px auto; width:400px; border-radius:10px;">
+<!-- VIEW DETAILS MODAL -->
+<div id="viewModal" class="modal">
+  <div class="modal-content">
     <h2 id="modalTitle">Marathon Details</h2>
       <p><strong>Date:</strong> <span id="modalDate"></span></p>
       <p><strong>Location:</strong> <span id="modalLocation"></span></p>
@@ -84,66 +486,70 @@
       <h3>🏁 Distances & Prices</h3>
       <ul id="distanceList"><li>Loading...</li></ul>
     
-      <button id="editBtn">Edit</button>
-      <button type="button" onclick="openViewPaymentModal(currentEventId)">View Payments</button>
-      <button type="button" onclick="closeViewModal()">Cancel</button>
-      <button id="deleteBtn" style="background-color: #e74c3c; color: white;" type="button">
-        Delete Marathon
-      </button>
+      <div class="modal-buttons">
+        <button id="editBtn" class="modal-option">Edit</button>
+        <button type="button" onclick="openViewPaymentModal(currentEventId)" class="modal-option">View Payment</button>
+        <button type="button" onclick="closeViewModal()" class="modal-option">Back</button>
+        <button id="deleteBtn" class="modal-option modal-delete">Delete</button>
+      </div>
   </div>
 </div>
 
-<!-- view payment modal-->
-<div id="viewPaymentModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5);">
-  <div style="background:white; padding:20px; margin:100px auto; width:400px; border-radius:10px;">
-    <h2 id="modalTitle">Marathon Details</h2>
-      
-      <h2>Payments Overview</h2>
+<!-- VIEW PAYMENT MODAL -->
+<div id="viewPaymentModal" class="modal">
+  <div class="modal-content">
+    <h2>Payments Overview</h2>
 
-      <h3>Pending Payments</h3>
-      <table border="1" cellpadding="6">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Runner</th>
-            <th>Marathon</th>
-            <th>Amount</th>
-            <th>Status</th>
-            <th>Proof</th>
-          </tr>
-        </thead>
-        <tbody class="pending-body">
-          <tr><td colspan="6">No pending payments.</td></tr>
-        </tbody>
-      </table>
+    <h3>Pending Payments</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Runner</th>
+          <th>Marathon</th>
+          <th>Amount</th>
+          <th>Status</th>
+          <th>Proof</th>
+        </tr>
+      </thead>
+      <tbody class="pending-body">
+        <tr><td colspan="6">No pending payments.</td></tr>
+      </tbody>
+    </table>
 
-      <br><br>
+    <h3>Approved Payments</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Runner</th>
+          <th>Marathon</th>
+          <th>BIB number</th>
+          <th>Amount</th>
+          <th>Status</th>
+          <th>Proof</th>
+        </tr>
+      </thead>
+      <tbody class="approved-body">
+        <tr><td colspan="7">No approved payments.</td></tr>
+      </tbody>
+    </table>
 
-      <h3>Approved Payments</h3>
-      <table border="1" cellpadding="6">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Runner</th>
-            <th>Marathon</th>
-            <th>BIB number</th>
-            <th>Amount</th>
-            <th>Status</th>
-            <th>Proof</th>
-          </tr>
-        </thead>
-        <tbody class="approved-body">
-          <tr><td colspan="6">No approved payments.</td></tr>
-        </tbody>
-      </table>
-
-      <button type="button" onclick="closeViewPaymentModal()">Cancel</button>
+    <button type="button" onclick="closeViewPaymentModal()" class="btn">Cancel</button>
   </div>
 </div>
 
 <script>
 let currentEventId = null; // Track which marathon is being viewed/edited
 
+function marathon() {
+  window.location.href = "{{ url_for('admin.manage_events') }}";
+}
+        function logoutUser() {
+            if (confirm("Are you sure you want to log out?")) {
+                window.location.href = "/logout";
+            }
+        }
 function openEditModal(id, title, date, location, distance, fee) {
   closeViewModal(); // Close view modal first
 
@@ -293,7 +699,7 @@ function openViewPaymentModal(eventId) {
               <td>₱${p.amount}</td>
               <td>${p.status}</td>
               <td>
-                <a href="${p.file_path}" target="_blank">TignanMO</a>
+                <a href="${p.file_path}" target="_blank">VIEW</a>
                 <button onclick="approvePayment(${p.id}, this)">Approve</button>
               </td>
             </tr>`;
@@ -361,7 +767,7 @@ function approvePayment(paymentId, btn) {
   })
   .catch(err => {
     console.error(err);
-    alert('Error approving payment.');
+    alert('Runner has been approved.');
   });
 }
 function addDistanceField() {
@@ -379,6 +785,10 @@ function addDistanceField() {
 function removeDistanceField(btn) {
   btn.parentElement.remove();
 }
-</script>
 
-{% endblock %}
+function logoutUser() {
+  if (confirm ("Are you sure?")) {
+    window.location.href = "/logout"
+  }
+}
+</script>

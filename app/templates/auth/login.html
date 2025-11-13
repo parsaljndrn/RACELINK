@@ -1,8 +1,365 @@
-<h2>Login</h2>
-<form method="POST">
-    <label>Email:</label><br>
-    <input type="email" name="email"><br>
-    <label>Password:</label><br>
-    <input type="password" name="password"><br>
-    <button type="submit">Login</button>
-</form>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RaceLink - Sign Up / Log In</title>
+  <link href="https://fonts.googleapis.com/css2?family=Righteous&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --yellow: #FFCD29;
+      --black: #0B0C10;
+      --gray-light: #F7F7F7;
+      --gray-dark: #666666;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Righteous', cursive;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: var(--black);
+      background-image: url('{{ url_for('static', filename='images/background.png') }}');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-attachment: fixed;
+      padding: 20px;
+      background-color: var(--gray-light);
+    }
+
+    .container {
+      background: rgba(244, 244, 244, 0.95);
+      width: 100%;
+      max-width: 800px;
+      border-radius: 15px;
+      padding: 40px;
+      box-shadow: 0 3px 15px rgb(0 0 0 / 0.15);
+      text-align: center;
+      color: var(--gray-dark);
+      font-weight: 400;
+      margin: auto;
+      box-sizing: border-box;
+      position: relative;
+      overflow: hidden;
+      font-family: 'Righteous', cursive;
+    }
+
+    .brand-title {
+      font-weight: 400;
+      font-size: 22px;
+      margin-bottom: 5px;
+      user-select: none;
+    }
+
+    .brand-title span {
+      color: var(--yellow);
+      font-weight: 700;
+    }
+    .subtitle {
+      margin-bottom: 25px;
+      font-size: 15px;
+      user-select: none;
+    }
+
+    .toggle-buttons {
+      font-family: 'Righteous', cursive;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 30px;
+      gap: 10px;
+    }
+
+    .toggle-btn {
+      font-family: 'Righteous', cursive;
+      flex: 1;
+      padding: 10px 0;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      background-color: #eee;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      color: var(--black);
+      border-radius: 8px;
+      user-select: none;
+    }
+
+    .toggle-btn.sign-up:hover {
+      background-color: var(--black);
+      color: var(--yellow);
+      border-color: var(--yellow);
+    }
+
+    .toggle-btn.log-in:hover {
+      background-color: var(--yellow);
+      color: var(--black);
+      border-color: var(--yellow);
+    }
+
+    .toggle-btn.active {
+      background-color: var(--yellow);
+      color: var(--black);
+      font-weight: 700;
+    }
+
+    .panel-wrapper {
+      position: relative;
+      height: 620px;
+      perspective: 800px;
+      user-select: none;
+    }
+
+    .panel {
+      position: absolute;
+      top: 0;
+      width: 280px;
+      height: 100%;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      padding: 25px 20px;
+      box-sizing: border-box;
+      transition:
+        transform 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 0.6s ease,
+        filter 0.6s ease,
+        width 0.6s ease;
+      overflow-y: auto;
+      left: 0;
+    }
+
+    .panel.active {
+      transform: translateX(260px) scale(1);
+      opacity: 1;
+      filter: none;
+      width: 450px;
+      z-index: 2;
+    }
+
+    .panel.inactive {
+      width: 180px;
+      opacity: 0.6;
+      filter: brightness(0.85);
+      z-index: 1;
+      border: 2px solid var(--yellow);
+    }
+
+    #signUpPanel.inactive {
+      transform: translateX(0) scale(0.8);
+      left: 0;
+      top: 0;
+    }
+
+    #logInPanel.inactive {
+      transform: translateX(540px) scale(0.8);
+      left: 0;
+      top: 0;
+    }
+
+    form {
+      text-align: left;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px 25px;
+    }
+
+    @media (max-width: 700px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    select,
+    input[type="email"],
+    input[type="password"],
+    input[type="text"],
+    input[type="tel"],
+    input[type="date"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.8px solid var(--yellow);
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: 'Righteous', cursive;
+      color: var(--black);
+      background: white;
+      outline-offset: 2px;
+      box-sizing: border-box;
+    }
+
+    input::placeholder {
+      font-style: italic;
+      color: #bfbfbf;
+    }
+
+    label {
+      font-size: 13px;
+      color: var(--black);
+      font-weight: 600;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    button.submit-btn {
+      width: 100%;
+      padding: 14px;
+      background-color: var(--yellow);
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 25px;
+      font-size: 16px;
+      color: var(--black);
+      transition: background-color 0.3s ease;
+      font-family: 'Righteous', cursive;
+    }
+
+    button.submit-btn:hover {
+      background-color: #e0b121;
+    }
+
+    button.back-btn {
+      margin-top: 16px;
+      background: none;
+      border: none;
+      font-size: 13px;
+      color: var(--gray-dark);
+      cursor: pointer;
+      font-family: 'Righteous', cursive;
+      font-weight: 400;
+      user-select: none;
+      transition: color 0.3s ease;
+      text-align: center;
+      width: 100%;
+    }
+
+    button.back-btn:hover {
+      color: var(--yellow);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container" role="main" aria-label="RaceLink registration">
+    <div class="brand-title" onclick="home()"><span>Race</span>Link</div>
+    <div class="subtitle">Your Marathon Registration Platform</div>
+
+    <div class="toggle-buttons">
+      <button id="signUpBtn" class="toggle-btn active" onclick="switchPanel('signUp')">Sign Up</button>
+      <button id="logInBtn" class="toggle-btn" onclick="switchPanel('logIn')">Log In</button>
+    </div>
+
+    <div class="panel-wrapper">
+      <div id="signUpPanel" class="panel active">
+        <form method="POST" action="{{ url_for('auth.register') }}">
+          <div class="form-grid">
+            <div>
+              <label for="name">Full Name</label>
+              <input id="name" type="text" name="name" placeholder="Full Name" required />
+            </div>
+
+            <div>
+              <label for="email">Email</label>
+              <input id="email" type="email" name="email" placeholder="Email" required />
+            </div>
+
+            <div>
+              <label for="password">Password</label>
+              <input id="password" type="password" name="password" placeholder="Password" required />
+            </div>
+
+            <div>
+              <label for="phone">Phone</label>
+              <input id="phone" type="text" name="phone" placeholder="Phone" required />
+            </div>
+
+            <div>
+              <label for="address">Address</label>
+              <input id="address" type="text" name="address" placeholder="Address" required />
+            </div>
+
+            <div>
+              <label for="gender">Gender</label>
+              <select id="gender" name="gender" required>
+                <option value="" disabled selected>Select Gender</option>
+                <option value="M">Male</option>
+                <option value="F">Female</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="birthdate">Birthdate</label>
+              <input id="birthdate" type="date" name="birthdate" required />
+            </div>
+
+            <div>
+              <label for="emergency_contact_name">Emergency Contact Name</label>
+              <input id="emergency_contact_name" type="text" name="emergency_contact_name" placeholder="Emergency Contact Name" required />
+            </div>
+
+            <div>
+              <label for="emergency_contact_number">Emergency Contact Number</label>
+              <input id="emergency_contact_number" type="text" name="emergency_contact_number" placeholder="Emergency Contact Number" required />
+            </div>
+          </div>
+          <button type="submit" class="submit-btn">Register</button>
+        </form>
+      </div>
+
+      <div id="logInPanel" class="panel inactive">
+        <form method="POST" action="{{ url_for('auth.login') }}">
+          <label for="log-in-email">Email</label>
+          <input id="log-in-email" type="email" name="email" style="margin-bottom: 18px;" />
+
+          <label for="log-in-password">Password</label>
+          <input id="log-in-password" type="password" name="password" />
+
+          <button type="submit" class="submit-btn">Login</button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function home(){
+        window.location.href = "{{ url_for('main.home') }}";
+    }
+    function switchPanel(panel) {
+      const signUpPanel = document.getElementById('signUpPanel');
+      const logInPanel = document.getElementById('logInPanel');
+      const signUpBtn = document.getElementById('signUpBtn');
+      const logInBtn = document.getElementById('logInBtn');
+
+      if (panel === 'signUp') {
+        signUpPanel.classList.add('active');
+        signUpPanel.classList.remove('inactive');
+        logInPanel.classList.add('inactive');
+        logInPanel.classList.remove('active');
+
+        signUpBtn.classList.add('active');
+        logInBtn.classList.remove('active');
+      } else {
+        logInPanel.classList.add('active');
+        logInPanel.classList.remove('inactive');
+        signUpPanel.classList.add('inactive');
+        signUpPanel.classList.remove('active');
+
+        logInBtn.classList.add('active');
+        signUpBtn.classList.remove('active');
+      }
+    }
+  </script>
+
+</body>
+
+</html>

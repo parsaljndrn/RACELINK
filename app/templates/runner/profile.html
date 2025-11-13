@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>User Profile</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Righteous&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
+
+  <style>
+    :root {
+      --black: #0B0C10;
+      --yellow: #FFCD29;
+      --gray: #D9D9D9;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Righteous', cursive;
+      background-color: var(--gray);
+      color: var(--black);
+    }
+
+    .nav-panel {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 60px;
+      background-color: var(--black);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 0;
+      transition: width 0.3s;
+      overflow: hidden;
+      z-index: 100;
+    }
+
+    .nav-panel:hover {
+      width: 220px;
+    }
+
+    .nav-panel .nav-item {
+      width: 100%;
+      padding: 15px 10px;
+      color: var(--yellow);
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .nav-panel .nav-item:hover {
+      background-color: var(--yellow);
+      color: var(--black);
+    }
+
+    .nav-panel .nav-item.active {
+      background-color: var(--yellow);
+      color: var(--black);
+    }
+
+    .nav-panel .nav-item i {
+      font-size: 22px;
+      min-width: 40px;
+      text-align: center;
+    }
+
+    .nav-panel .nav-label {
+      opacity: 0;
+      transition: opacity 0.3s;
+      user-select: none;
+    }
+
+    .nav-panel:hover .nav-label {
+      opacity: 1;
+      margin-left: 10px;
+    }
+
+    .nav-panel:not(:hover) .nav-label {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .nav-panel .logo {
+      width: 100%;
+      text-align: center;
+      padding: 15px 0 10px 0;
+      border-bottom: 1px solid var(--yellow);
+      margin-bottom: 10px;
+    }
+
+    .nav-panel .logo img {
+      max-width: 50px;
+      height: auto;
+      transition: max-width 0.3s;
+    }
+
+    .nav-panel:hover .logo img {
+      max-width: 80px;
+    }
+
+    .container {
+      margin-left: 60px;
+      padding: 20px;
+      transition: margin-left 0.3s;
+    }
+
+    .nav-panel:hover~.container {
+      margin-left: 220px;
+    }
+
+    /* Updated profile card styles to match the new design */
+    .profile-card {
+      background: white;
+      border-radius: 14px;
+      padding: 0;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      margin-bottom: 40px;
+    }
+
+    .profile-header {
+      height: 144px;
+      background: linear-gradient(to bottom, #ffd300, #ffb800);
+      padding: 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .profile-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background-color: var(--black);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--yellow);
+      font-size: 40px;
+    }
+
+    .profile-info h2 {
+      font-size: 28px;
+      font-weight: normal;
+      margin: 0;
+      color: var(--black);
+    }
+
+    .profile-info p {
+      font-size: 16px;
+      opacity: 0.8;
+      margin: 4px 0 0 0;
+      color: var(--black);
+    }
+
+    .profile-fields {
+      padding: 24px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field-label {
+      font-size: 16px;
+      opacity: 0.6;
+      color: var(--black);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .field-input {
+      height: 48px;
+      padding: 0 16px;
+      border: 1px solid #e5e5e5;
+      border-radius: 10px;
+      background-color: #f3f4f6;
+      font-family: 'Righteous', cursive;
+      font-size: 16px;
+      color: var(--black);
+      display: flex;
+      align-items: center;
+    }
+
+    .field-input:disabled {
+      background-color: #f3f4f6;
+      cursor: not-allowed;
+    }
+
+    .edit-buttons {
+      margin-top: 20px;
+      padding: 0 32px 24px 32px;
+      /* Added bottom padding for spacing */
+      display: flex;
+      justify-content: flex-end;
+      /* Align to the right */
+      gap: 10px;
+    }
+
+    .btn {
+      background-color: var(--black);
+      color: var(--yellow);
+      border: none;
+      border-radius: 25px;
+      padding: 10px 20px;
+      font-family: 'Righteous', cursive;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.3s, color 0.3s;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn:hover {
+      background-color: var(--yellow);
+      color: var(--black);
+    }
+
+    .btn-cancel {
+      background-color: #e5e5e5;
+      color: var(--black);
+    }
+
+    .btn-cancel:hover {
+      background-color: #ccc;
+      color: var(--black);
+    }
+
+    /* Bookings section styles */
+    .bookings-section {
+      margin-top: 40px;
+    }
+
+    .bookings-card {
+      background: white;
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      margin-bottom: 20px;
+    }
+
+    .bookings-title {
+      font-size: 24px;
+      font-weight: bold;
+      color: var(--black);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .bookings-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 16px; /* Increased gap for more space */
+    }
+
+    .booking-item {
+      background: var(--gray);
+      border-radius: 10px;
+      padding: 20px; /* Increased padding for more space */
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: transform 0.2s ease;
+    }
+
+    .booking-item:hover {
+      transform: scale(1.02);
+    }
+
+    .booking-details {
+      flex: 1;
+      margin-right: 16px; /* Add margin for space */
+    }
+
+    .booking-event {
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--black);
+      margin-bottom: 4px;
+    }
+
+    .booking-info {
+      font-size: 14px;
+      opacity: 0.7;
+      color: var(--black);
+    }
+
+    .booking-shirt {
+      font-size: 14px;
+      opacity: 0.7;
+      color: var(--black);
+      margin-top: 4px;
+    }
+
+    .booking-bib {
+      font-size: 14px;
+      opacity: 0.7;
+      color: var(--black);
+      margin-top: 4px;
+    }
+
+    .booking-amount {
+      font-size: 16px;
+      font-weight: bold;
+      color: var(--yellow);
+      white-space: nowrap; /* Prevent wrapping */
+    }
+
+    .no-bookings {
+      font-size: 16px;
+      opacity: 0.6;
+      color: var(--black);
+      text-align: center;
+      padding: 20px;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 992px) {
+      .profile-fields {
+        gap: 16px;
+      }
+
+      .booking-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      .booking-amount {
+        align-self: flex-end;
+      }
+
+      .booking-details {
+        margin-right: 0;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .profile-header {
+        flex-direction: column;
+        text-align: center;
+        height: auto;
+        padding: 24px 16px;
+      }
+
+      .profile-avatar {
+        margin-bottom: 16px;
+      }
+
+      .profile-fields {
+        gap: 12px;
+        padding: 16px;
+      }
+
+      .edit-buttons {
+        padding: 0 16px 16px 16px;
+        justify-content: center;
+        /* Center on mobile */
+      }
+
+      .nav-panel {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 60px;
+        background-color: var(--black);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px 0;
+        transition: width 0.3s;
+        overflow: hidden;
+        z-index: 100;
+      }
+
+      .nav-panel:hover {
+        width: 220px;
+      }
+
+      .nav-panel .nav-item {
+        width: 100%;
+        padding: 15px 10px;
+        color: var(--yellow);
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        white-space: nowrap;
+        overflow: hidden;
+      }
+
+      .nav-panel .nav-item:hover {
+        background-color: var(--yellow);
+        color: var(--black);
+      }
+
+      .nav-panel .nav-item i {
+        font-size: 22px;
+        min-width: 40px;
+        text-align: center;
+      }
+
+      .nav-panel .nav-label {
+        opacity: 0;
+        transition: opacity 0.3s;
+        user-select: none;
+      }
+
+      .nav-panel:hover .nav-label {
+        opacity: 1;
+        margin-left: 10px;
+      }
+
+      .nav-panel:not(:hover) .nav-label {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .nav-panel .logo {
+        width: 100%;
+        text-align: center;
+        padding: 15px 0 10px 0;
+        border-bottom: 1px solid var(--yellow);
+        margin-bottom: 10px;
+      }
+
+      .nav-panel .logo img {
+        max-width: 50px;
+        height: auto;
+        transition: max-width 0.3s;
+      }
+
+      .nav-panel:hover .logo img {
+        max-width: 80px;
+      }
+
+      .nav-panel:hover~.container {
+        margin-left: 220px;
+      }
+
+      .bookings-card {
+        padding: 16px;
+      }
+
+      .booking-item {
+        padding: 16px; /* Adjusted for mobile */
+        gap: 12px;
+      }
+
+      .bookings-list {
+        gap: 12px; /* Adjusted for mobile */
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav class="nav-panel" aria-label="User Navigation">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="RaceLink Logo" />
+        </div>
+        <div class="nav-item" title="Marathons" onclick="marathon()">
+            <i class="fas fa-running"></i>
+            <span class="nav-label">Marathons</span>
+        </div>
+        <div class="nav-item" title="User Profile" onclick="userProfile()">
+            <i class="fas fa-user"></i>
+            <span class="nav-label">User Profile</span>
+        </div>
+        <div class="nav-item logout-btn" title="Log Out" onclick="logoutUser()">
+            <i class="fas fa-sign-out-alt"></i>
+            <span class="nav-label">Log Out</span>
+        </div>
+  </nav>
+
+  <div class="container">
+    <h1 style="font-size: 48px; font-weight: bold; color: var(--black);">User Profile</h1>
+    <p style="font-size: 18px; color: var(--black); opacity: 0.8;">Manage your personal information</p>
+
+    <div class="profile-list" aria-label="User Profile List">
+      <form method="POST" action="{{ url_for('runner.profile') }}" class="profile-card">
+        <div class="profile-header">
+          <div class="profile-avatar">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="profile-info">
+            <h2>{{ user.name }}</h2>
+            <p>Runner</p>
+          </div>
+        </div>
+
+        <!-- Form fields -->
+        <div class="profile-fields">
+          <div class="field-group">
+            <div class="field-label">
+              <i class="fas fa-user"></i>
+              <span>Full Name</span>
+            </div>
+            <input type="text" name="name" value="{{ user.name }}" readonly class="field-input">
+          </div>
+
+          <div class="field-group">
+            <div class="field-label">
+              <i class="fas fa-envelope"></i>
+              <span>Email</span>
+            </div>
+            <input type="email" name="email" value="{{ user.email }}" readonly class="field-input">
+          </div>
+
+          <div class="field-group">
+            <div class="field-label">
+              <i class="fas fa-map-marker-alt"></i>
+              <span>Address</span>
+            </div>
+            <input type="text" name="address" value="{{ runner.address }}" readonly class="field-input">
+          </div>
+
+          <div class="field-group">
+            <div class="field-label">
+              <i class="fas fa-phone"></i>
+              <span>Phone</span>
+            </div>
+            <input type="text" name="phone" value="{{ runner.phone }}" readonly class="field-input">
+          </div>
+
+          <div class="field-group">
+            <div class="field-label">
+              <i class="fas fa-venus-mars"></i>
+              <span>Gender</span>
+            </div>
+            <select name="gender" disabled class="field-input">
+              <option value="M" {% if runner.gender == 'M' %}selected{% endif %}>Male</option>
+              <option value="F" {% if runner.gender == 'F' %}selected{% endif %}>Female</option>
+            </select>
+          </div>
+
+          <div class="field-group">
+            <div class="field-label">
+              <i class="fas fa-birthday-cake"></i>
+              <span>Birthdate</span>
+            </div>
+            <input type="date" name="birthdate" value="{{ runner.birthdate }}" readonly class="field-input">
+          </div>
+
+          <div class="field-group">
+            <div class="field-label">
+              <i class="fas fa-user"></i>
+              <span>Emergency Contact Name</span>
+            </div>
+            <input type="text" name="emergency_contact_name" value="{{ runner.emergency_contact_name }}" readonly class="field-input">
+          </div>
+
+          <div class="field-group">
+            <div class="field-label">
+              <i class="fas fa-phone"></i>
+              <span>Emergency Contact Number</span>
+            </div>
+            <input type="text" name="emergency_contact_number" value="{{ runner.emergency_contact_number }}" readonly class="field-input">
+          </div>
+        </div>
+
+        <!-- Edit buttons below the container -->
+        <div class="edit-buttons">
+          <button type="button" id="editBtn" class="btn btn-edit">Edit</button>
+          <button type="submit" id="saveBtn" class="btn" style="display:none;">Save</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Bookings Section -->
+<div class="bookings-section">
+  <div class="bookings-card">
+    <h3 class="bookings-title">
+      <i class="fas fa-clock"></i>
+      Pending Bookings
+    </h3>
+    {% if pending_payments %}
+      <ul class="bookings-list">
+        {% for payment in pending_payments %}
+          <li class="booking-item">
+            <div class="booking-details">
+              <div class="booking-event">{{ payment.booking.marathon.title }}</div>
+              <div class="booking-info">{{ payment.booking.marathon.date.strftime('%b %d, %Y') }}</div>
+            </div>
+            <div class="booking-distance" style="margin-left: 50px;">Distance: {{ payment.booking.distance }}</div>
+            <div class="booking-shirt" style="margin-left: 50px;">Shirt Size: {{ payment.booking.tshirt_size }}</div>
+            <div class="booking-amount" style="margin-left: 50px; color: #0B0C10;">₱{{ payment.amount }}</div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="no-bookings">No pending bookings.</p>
+    {% endif %}
+  </div>
+
+  <div class="bookings-card">
+    <h3 class="bookings-title">
+      <i class="fas fa-check-circle"></i>
+      Approved Bookings
+    </h3>
+    {% if approved_payments %}
+      <ul class="bookings-list">
+        {% for payment in approved_payments %}
+          <li class="booking-item">
+            <div class="booking-details">
+              <div class="booking-event">{{payment.booking.marathon.title }}</div>
+              <div class="booking-info">{{ payment.booking.marathon.date.strftime('%b %d, %Y') }}</div>
+            </div>
+            <div class="booking-distance" style="margin-left: 50px;">Distance: {{ payment.booking.distance }}</div>
+            <div class="booking-shirt" style="margin-left: 50px;">Shirt Size: {{ payment.booking.tshirt_size }}</div>
+            <div class="booking-bib" style="margin-left: 50px;">Bib: {{ payment.booking.bib_number }}</div>
+            <div class="booking-amount" style="margin-left: 50px; color: #0B0C10;">₱{{ payment.amount }}</div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="no-bookings">No approved bookings.</p>
+    {% endif %}
+  </div>
+</div>
+
+ <script>
+            function marathon() {
+          window.location.href = "{{ url_for('runner.view_marathons') }}";
+        }
+      
+        function aboutUs() {
+          window.location.href = "{{ url_for('main.about') }}"; // replace 'main.about' with your actual route
+        }
+      
+        function userProfile() {
+          window.location.href = "{{ url_for('runner.profile') }}"; // replace 'runner.my_profile' with your profile route
+        }
+        function logoutUser() {
+            if (confirm("Are you sure you want to log out?")) {
+                window.location.href = "/logout";
+            }
+        }
+        function marathon() {
+            window.location.href = "/runner/marathons";
+        }
+
+    const editBtn = document.getElementById('editBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    const inputs = document.querySelectorAll('input, select');
+
+    editBtn.addEventListener('click', () => {
+      inputs.forEach(input => {
+        input.removeAttribute('readonly');
+        input.removeAttribute('disabled');
+      });
+      editBtn.style.display = 'none';
+      saveBtn.style.display = 'inline';
+    });
+  </script>
+
+</body>
+
+</html>

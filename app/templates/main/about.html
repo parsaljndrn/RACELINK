@@ -1,5 +1,269 @@
-<h1>About RACELINK</h1>
-<p>RACELINK is your all-in-one portal for marathon events, runner registration, and payment tracking.</p>
-<p>Our mission is to connect runners with exciting events and make registration easier for everyone.</p>
+<!DOCTYPE html>
+<html lang="en">
 
-<a href="{{ url_for('main.home') }}">Back to Home</a>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>About Us</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Righteous&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
+
+  <style>
+    :root {
+      --black: #0B0C10;
+      --yellow: #FFCD29;
+      --gray: #D9D9D9;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Righteous', cursive;
+      background-color: var(--gray);
+      color: var(--black);
+    }
+
+    .container {
+      padding: 20px;
+      position: relative;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      font-size: 48px;
+      font-weight: bold;
+      color: var(--black);
+      margin: 0;
+    }
+
+    .back-link {
+      font-size: 18px;
+      color: var(--black);
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .back-link:hover {
+      color: var(--yellow);
+    }
+
+    .hero {
+      background: url('https://via.placeholder.com/1200x400.png?text=Running+Together') no-repeat center/cover;
+      height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--black);
+      text-align: center;
+      position: relative;
+      border-radius: 8px;
+      margin-bottom: 40px;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 205, 41, 0.7);
+      border-radius: 8px;
+    }
+
+    .hero h1 {
+      position: relative;
+      z-index: 1;
+      font-size: 48px;
+      margin: 0;
+    }
+
+    .hero p {
+      position: relative;
+      z-index: 1;
+      font-size: 24px;
+      margin: 10px 0 0 0;
+    }
+
+    .section {
+      margin-bottom: 40px;
+    }
+
+    .section h2 {
+      font-size: 36px;
+      color: var(--black);
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--yellow);
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      transition: transform 0.3s;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .card i {
+      font-size: 40px;
+      color: var(--black);
+      margin-bottom: 10px;
+    }
+
+    .card h3 {
+      font-size: 24px;
+      margin: 0 0 10px 0;
+    }
+
+    .card p {
+      font-size: 16px;
+      margin: 0;
+    }
+
+    .contact {
+      background: var(--black);
+      color: var(--yellow);
+      padding: 40px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .contact h2 {
+      margin: 0 0 20px 0;
+    }
+
+    .contact p {
+      font-size: 18px;
+      margin: 0 0 20px 0;
+    }
+
+    .contact button {
+      background: var(--yellow);
+      color: var(--black);
+      border: none;
+      padding: 15px 30px;
+      font-family: 'Righteous', cursive;
+      font-size: 18px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .about h1 {
+      margin-left: 40px;
+      margin-right: 40px;
+      text-align: left;
+      font-size: 2em;
+      margin-bottom: 40px;
+    }
+
+    .about p {
+      margin-left: 40px;
+      margin-right: 40px;
+      text-align: justify;
+      line-height: 1.2;
+      margin-bottom: 15px;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      .header h1 {
+        font-size: 36px;
+      }
+
+      .back-link {
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <div class="header">
+      <h1>About Us</h1>
+      <a href="{{ url_for('main.home') }}" class="back-link">&larr; Back to Home</a>
+    </div>
+
+    <!-- Hero Section -->
+    <div class="hero">
+      <div class="about">
+        <h1>What is RaceLink?</h1>
+        <p>
+          RaceLink is a web-based platform that makes marathon registration simple and convenient.
+          It allows runners to register online, stay updated on upcoming races, and manage their
+          participation easily. Organizers can also create, manage, and track events and payments
+          through the system.
+        </p>
+
+        <p>
+          Developed by four Computer Science students from the University of the East, RaceLink aims
+          to digitalize marathon bookings and connect the running community in one easy-to-use
+          platform.
+        </p>
+      </div>
+    </div>
+
+    <!-- Mission & Values -->
+    <div class="section">
+      <h2>Our Mission & Values</h2>
+      <div class="cards">
+        <div class="card">
+          <i class="fas fa-bullseye"></i>
+          <h3>Mission</h3>
+          <p>To empower runners of all levels by providing seamless marathon registration and community support.</p>
+        </div>
+        <div class="card">
+          <i class="fas fa-heart"></i>
+          <h3>Passion</h3>
+          <p>We believe in the power of running to transform lives and build stronger communities.</p>
+        </div>
+        <div class="card">
+          <i class="fas fa-shield-alt"></i>
+          <h3>Integrity</h3>
+          <p>Transparency and fairness in every race, every registration, every step.</p>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="contact">
+      <h2>Get in Touch</h2>
+      <p>Interested in being an Organizer? Contact us today!</p>
+      <button onclick="alert('Contact form coming soon!')">Contact Us</button>
+    </div>
+  </div>
+
+  <script>
+    function logout() {
+      window.location.href = 'login.html';
+    }
+  </script>
+
+</body>
+
+</html>
