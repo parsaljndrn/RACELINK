@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RaceLink - Sign Up / Log In</title>
+  <link href="https://fonts.googleapis.com/css2?family=Righteous&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --yellow: #FFCD29;
+      --black: #0B0C10;
+      --gray-light: #F7F7F7;
+      --gray-dark: #666666;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Righteous', cursive;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: var(--black);
+      background-image: url('background.png');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-attachment: fixed;
+      padding: 20px;
+      background-color: var(--gray-light);
+    }
+
+    .container {
+      background: rgba(244, 244, 244, 0.95);
+      width: 100%;
+      max-width: 800px;
+      border-radius: 15px;
+      padding: 40px;
+      box-shadow: 0 3px 15px rgb(0 0 0 / 0.15);
+      text-align: center;
+      color: var(--gray-dark);
+      font-weight: 400;
+      margin: auto;
+      box-sizing: border-box;
+      position: relative;
+      overflow: hidden;
+      font-family: 'Righteous', cursive;
+    }
+
+    .brand-title {
+      font-weight: 400;
+      font-size: 22px;
+      margin-bottom: 5px;
+      user-select: none;
+    }
+
+    .brand-title span {
+      color: var(--yellow);
+      font-weight: 700;
+    }
+
+    .subtitle {
+      margin-bottom: 25px;
+      font-size: 15px;
+      user-select: none;
+    }
+
+    .toggle-buttons {
+      font-family: 'Righteous', cursive;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 30px;
+      gap: 10px;
+    }
+
+    .toggle-btn {
+      font-family: 'Righteous', cursive;
+      flex: 1;
+      padding: 10px 0;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      background-color: #eee;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      color: var(--black);
+      border-radius: 8px;
+      user-select: none;
+    }
+
+    .toggle-btn.sign-up:hover {
+      background-color: var(--black);
+      color: var(--yellow);
+      border-color: var(--yellow);
+    }
+
+    .toggle-btn.log-in:hover {
+      background-color: var(--yellow);
+      color: var(--black);
+      border-color: var(--yellow);
+    }
+
+    .toggle-btn.active {
+      background-color: var(--yellow);
+      color: var(--black);
+      font-weight: 700;
+    }
+
+    .panel-wrapper {
+      position: relative;
+      height: 620px;
+      perspective: 800px;
+      user-select: none;
+    }
+
+    .panel {
+      position: absolute;
+      top: 0;
+      width: 280px;
+      height: 100%;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      padding: 25px 20px;
+      box-sizing: border-box;
+      transition:
+        transform 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 0.6s ease,
+        filter 0.6s ease,
+        width 0.6s ease;
+      overflow-y: auto;
+      left: 0;
+    }
+
+    .panel.active {
+      transform: translateX(260px) scale(1);
+      opacity: 1;
+      filter: none;
+      width: 450px;
+      z-index: 2;
+    }
+
+    .panel.inactive {
+      width: 180px;
+      opacity: 0.6;
+      filter: brightness(0.85);
+      z-index: 1;
+      border: 2px solid var(--yellow);
+    }
+
+    #signUpPanel.inactive {
+      transform: translateX(0) scale(0.8);
+      left: 0;
+      top: 0;
+    }
+
+    #logInPanel.inactive {
+      transform: translateX(540px) scale(0.8);
+      left: 0;
+      top: 0;
+    }
+
+    form {
+      text-align: left;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px 25px;
+    }
+
+    @media (max-width: 700px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    select,
+    input[type="email"],
+    input[type="password"],
+    input[type="text"],
+    input[type="tel"],
+    input[type="date"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.8px solid var(--yellow);
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: 'Righteous', cursive;
+      color: var(--black);
+      background: white;
+      outline-offset: 2px;
+      box-sizing: border-box;
+    }
+
+    input::placeholder {
+      font-style: italic;
+      color: #bfbfbf;
+    }
+
+    label {
+      font-size: 13px;
+      color: var(--black);
+      font-weight: 600;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    button.submit-btn {
+      width: 100%;
+      padding: 14px;
+      background-color: var(--yellow);
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 25px;
+      font-size: 16px;
+      color: var(--black);
+      transition: background-color 0.3s ease;
+      font-family: 'Righteous', cursive;
+    }
+
+    button.submit-btn:hover {
+      background-color: #e0b121;
+    }
+
+    button.back-btn {
+      margin-top: 16px;
+      background: none;
+      border: none;
+      font-size: 13px;
+      color: var(--gray-dark);
+      cursor: pointer;
+      font-family: 'Righteous', cursive;
+      font-weight: 400;
+      user-select: none;
+      transition: color 0.3s ease;
+      text-align: center;
+      width: 100%;
+    }
+
+    button.back-btn:hover {
+      color: var(--yellow);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container" role="main" aria-label="RaceLink registration">
+    <div class="brand-title"><span>Race</span>Link</div>
+    <div class="subtitle">Your Marathon Registration Platform</div>
+
+    <div class="toggle-buttons">
+      <button id="signUpBtn" class="toggle-btn active" onclick="switchPanel('signUp')">Sign Up</button>
+      <button id="logInBtn" class="toggle-btn" onclick="switchPanel('logIn')">Log In</button>
+    </div>
+
+    <div class="panel-wrapper">
+      <div id="signUpPanel" class="panel active">
+        <form id="signUpForm" onsubmit="submitSignUp(event)">
+          <div class="form-grid">
+            <div>
+              <label for="sign-up-name">Full Name</label>
+              <input id="sign-up-name" type="text" placeholder="Enter your full name" required />
+            </div>
+
+            <div>
+              <label for="sign-up-email">Email</label>
+              <input id="sign-up-email" type="email" placeholder="Enter your email" required />
+            </div>
+
+            <div>
+              <label for="sign-up-password">Password</label>
+              <input id="sign-up-password" type="password" placeholder="Enter your password" required />
+            </div>
+
+            <div>
+              <label for="sign-up-phone">Phone</label>
+              <input id="sign-up-phone" type="tel" placeholder="Enter your phone number" />
+            </div>
+
+            <div>
+              <label for="sign-up-address">Address</label>
+              <input id="sign-up-address" type="text" placeholder="Enter your address" />
+            </div>
+
+            <div>
+              <label for="sign-up-gender">Gender</label>
+              <select id="sign-up-gender">
+                <option value="" disabled selected>Select your gender</option>
+                <option value="M">Male</option>
+                <option value="F">Female</option>
+                <option value="O">Other</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="sign-up-birthdate">Birthdate</label>
+              <input id="sign-up-birthdate" type="date" />
+            </div>
+
+            <div>
+              <label for="sign-up-emergency-contact-name">Emergency Contact Name</label>
+              <input id="sign-up-emergency-contact-name" type="text" placeholder="Enter emergency contact name" />
+            </div>
+
+            <div>
+              <label for="sign-up-emergency-contact-number">Emergency Contact Number</label>
+              <input id="sign-up-emergency-contact-number" type="tel" placeholder="Enter emergency contact phone" />
+            </div>
+          </div>
+          <button type="submit" class="submit-btn">Sign Up</button>
+        </form>
+      </div>
+
+      <div id="logInPanel" class="panel inactive">
+        <form id="logInForm" onsubmit="submitLogIn(event)">
+          <label for="log-in-email">Email</label>
+          <input id="log-in-email" type="email" placeholder="Enter your email" required style="margin-bottom: 18px;" />
+
+
+          <label for="log-in-password">Password</label>
+          <input id="log-in-password" type="password" placeholder="Enter your password" required />
+
+          <button type="submit" class="submit-btn">Log In</button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function switchPanel(panel) {
+      const signUpPanel = document.getElementById('signUpPanel');
+      const logInPanel = document.getElementById('logInPanel');
+      const signUpBtn = document.getElementById('signUpBtn');
+      const logInBtn = document.getElementById('logInBtn');
+
+      if (panel === 'signUp') {
+        signUpPanel.classList.add('active');
+        signUpPanel.classList.remove('inactive');
+        logInPanel.classList.add('inactive');
+        logInPanel.classList.remove('active');
+
+        signUpBtn.classList.add('active');
+        logInBtn.classList.remove('active');
+      } else {
+        logInPanel.classList.add('active');
+        logInPanel.classList.remove('inactive');
+        signUpPanel.classList.add('inactive');
+        signUpPanel.classList.remove('active');
+
+        logInBtn.classList.add('active');
+        signUpBtn.classList.remove('active');
+      }
+    }
+
+    function submitSignUp(e) {
+      e.preventDefault();
+      alert('Sign Up data submitted');
+      // Implement sign up logic here
+    }
+
+    function submitLogIn(e) {
+      e.preventDefault();
+      alert('Log In data submitted');
+      // Implement log in logic here
+    }
+  </script>
+
+</body>
+
+</html>

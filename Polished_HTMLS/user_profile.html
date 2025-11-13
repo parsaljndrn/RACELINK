@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>User Profile</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Righteous&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
+
+  <style>
+    :root {
+      --black: #0B0C10;
+      --yellow: #FFCD29;
+      --gray: #D9D9D9;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Righteous', cursive;
+      background-color: var(--gray);
+      color: var(--black);
+    }
+
+    .nav-panel {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 60px;
+      background-color: var(--black);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 0;
+      transition: width 0.3s;
+      overflow: hidden;
+      z-index: 100;
+    }
+
+    .nav-panel:hover {
+      width: 220px;
+    }
+
+    .nav-panel .nav-item {
+      width: 100%;
+      padding: 15px 10px;
+      color: var(--yellow);
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .nav-panel .nav-item:hover {
+      background-color: var(--yellow);
+      color: var(--black);
+    }
+
+    .nav-panel .nav-item.active {
+      background-color: var(--yellow);
+      color: var(--black);
+    }
+
+    .nav-panel .nav-item i {
+      font-size: 22px;
+      min-width: 40px;
+      text-align: center;
+    }
+
+    .nav-panel .nav-label {
+      opacity: 0;
+      transition: opacity 0.3s;
+      user-select: none;
+    }
+
+    .nav-panel:hover .nav-label {
+      opacity: 1;
+      margin-left: 10px;
+    }
+
+    .nav-panel:not(:hover) .nav-label {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .nav-panel .logo {
+      width: 100%;
+      text-align: center;
+      padding: 15px 0 10px 0;
+      border-bottom: 1px solid var(--yellow);
+      margin-bottom: 10px;
+    }
+
+    .nav-panel .logo img {
+      max-width: 50px;
+      height: auto;
+      transition: max-width 0.3s;
+    }
+
+    .nav-panel:hover .logo img {
+      max-width: 80px;
+    }
+
+    .container {
+      margin-left: 60px;
+      padding: 20px;
+      transition: margin-left 0.3s;
+    }
+
+    .nav-panel:hover~.container {
+      margin-left: 220px;
+    }
+
+    /* Updated profile card styles to match the new design */
+    .profile-card {
+      background: white;
+      border-radius: 14px;
+      padding: 0;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+    }
+
+    .profile-header {
+      height: 144px;
+      background: linear-gradient(to bottom, #ffd300, #ffb800);
+      padding: 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .profile-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background-color: var(--black);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--yellow);
+      font-size: 40px;
+    }
+
+    .profile-info h2 {
+      font-size: 28px;
+      font-weight: normal;
+      margin: 0;
+      color: var(--black);
+    }
+
+    .profile-info p {
+      font-size: 16px;
+      opacity: 0.8;
+      margin: 4px 0 0 0;
+      color: var(--black);
+    }
+
+    .profile-fields {
+      padding: 24px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field-label {
+      font-size: 16px;
+      opacity: 0.6;
+      color: var(--black);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .field-input {
+      height: 48px;
+      padding: 0 16px;
+      border: 1px solid #e5e5e5;
+      border-radius: 10px;
+      background-color: #f3f4f6;
+      font-family: 'Righteous', cursive;
+      font-size: 16px;
+      color: var(--black);
+      display: flex;
+      align-items: center;
+    }
+
+    .field-input:disabled {
+      background-color: #f3f4f6;
+      cursor: not-allowed;
+    }
+
+    .edit-buttons {
+      margin-top: 20px;
+      padding: 0 32px 24px 32px;
+      /* Added bottom padding for spacing */
+      display: flex;
+      justify-content: flex-end;
+      /* Align to the right */
+      gap: 10px;
+    }
+
+    .btn {
+      background-color: var(--black);
+      color: var(--yellow);
+      border: none;
+      border-radius: 25px;
+      padding: 10px 20px;
+      font-family: 'Righteous', cursive;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.3s, color 0.3s;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn:hover {
+      background-color: var(--yellow);
+      color: var(--black);
+    }
+
+    .btn-cancel {
+      background-color: #e5e5e5;
+      color: var(--black);
+    }
+
+    .btn-cancel:hover {
+      background-color: #ccc;
+      color: var(--black);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 992px) {
+      .profile-fields {
+        gap: 16px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .profile-header {
+        flex-direction: column;
+        text-align: center;
+        height: auto;
+        padding: 24px 16px;
+      }
+
+      .profile-avatar {
+        margin-bottom: 16px;
+      }
+
+      .profile-fields {
+        gap: 12px;
+        padding: 16px;
+      }
+
+      .edit-buttons {
+        padding: 0 16px 16px 16px;
+        justify-content: center;
+        /* Center on mobile */
+      }
+
+      .nav-panel {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 60px;
+        background-color: var(--black);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px 0;
+        transition: width 0.3s;
+        overflow: hidden;
+        z-index: 100;
+      }
+
+      .nav-panel:hover {
+        width: 220px;
+      }
+
+      .nav-panel .nav-item {
+        width: 100%;
+        padding: 15px 10px;
+        color: var(--yellow);
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        white-space: nowrap;
+        overflow: hidden;
+      }
+
+      .nav-panel .nav-item:hover {
+        background-color: var(--yellow);
+        color: var(--black);
+      }
+
+      .nav-panel .nav-item i {
+        font-size: 22px;
+        min-width: 40px;
+        text-align: center;
+      }
+
+      .nav-panel .nav-label {
+        opacity: 0;
+        transition: opacity 0.3s;
+        user-select: none;
+      }
+
+      .nav-panel:hover .nav-label {
+        opacity: 1;
+        margin-left: 10px;
+      }
+
+      .nav-panel:not(:hover) .nav-label {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .nav-panel .logo {
+
+        width: 100%;
+        text-align: center;
+        padding: 15px 0 10px 0;
+        border-bottom: 1px solid var(--yellow);
+        margin-bottom: 10px;
+      }
+
+      .nav-panel .logo img {
+        max-width: 50px;
+        height: auto;
+        transition: max-width 0.3s;
+      }
+
+      .nav-panel:hover .logo img {
+        max-width: 80px;
+      }
+
+      .nav-panel:hover~.container {
+        margin-left: 220px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav class="nav-panel" aria-label="User Navigation">
+    <div class="logo">
+      <img src="images/RACELINK_LOGO.png" alt="RaceLink Logo" />
+    </div>
+
+    <div class="nav-item" title="Dashboard">
+      <i class="fas fa-tachometer-alt"></i>
+      <span class="nav-label">Dashboard</span>
+    </div>
+    <div class="nav-item" title="Marathons">
+      <i class="fas fa-running"></i>
+      <span class="nav-label">Marathons</span>
+    </div>
+    <div class="nav-item" title="About Us">
+      <i class="fas fa-info-circle"></i>
+      <span class="nav-label">About Us</span>
+    </div>
+    <div class="nav-item" title="User Profile">
+      <i class="fas fa-user"></i>
+      <span class="nav-label">User Profile</span>
+    </div>
+    <div class="nav-item logout-btn" title="Log Out" onclick="logoutUser()">
+      <i class="fas fa-sign-out-alt"></i>
+      <span class="nav-label">Log Out</span>
+    </div>
+
+  </nav>
+
+  <div class="container">
+    <h1 style="font-size: 48px; font-weight: bold; color: var(--black);">User Profile</h1>
+    <p style="font-size: 18px; color: var(--black); opacity: 0.8;">Manage your personal information</p>
+
+    <div class="profile-list" aria-label="User Profile List">
+      <div class="profile-card">
+        <div class="profile-header">
+          <div class="profile-avatar">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="profile-info">
+            <h2>Jane Smith</h2>
+            <p>Event Organizer</p>
+          </div>
+        </div>
+
+        <!-- Form fields -->
+        <div class="profile-fields">
+          <div class="field-group">
+            <div class="field-label">
+              <i class="fas fa-user"></i>
+              <span>Name</span>
+            </div>
+            <input type="text" class="field-input" value="Jane Smith" disabled>
+          </div>
+
+          <div class="field-group">
+            <div class="field-label">
+              <i class="fas fa-envelope"></i>
+              <span>Email Address</span>
+            </div>
+            <input type="email" class="field-input" value="jane.smith@marathonevents.com" disabled>
+          </div>
+
+          <div class="field-group">
+            <div class="field-label">
+              <i class="fas fa-map-marker-alt"></i>
+              <span>Address</span>
+            </div>
+            <input type="text" class="field-input" value="Makati City, Metro Manila, Philippines" disabled>
+          </div>
+
+          <div style="display: flex; gap: 20px;">
+            <div class="field-group" style="flex: 1;">
+              <div class="field-label">
+                <i class="fas fa-birthday-cake"></i>
+                <span>Age</span>
+              </div>
+              <input type="number" class="field-input" value="32" disabled>
+            </div>
+            <div class="field-group" style="flex: 1;">
+              <div class="field-label">
+                <i class="fas fa-venus-mars"></i>
+                <span>Gender</span>
+              </div>
+              <input type="text" class="field-input" value="Female" disabled>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <div class="field-label">
+              <i class="fas fa-phone"></i>
+              <span>Contact No.</span>
+            </div>
+            <input type="tel" class="field-input" value="+63 917 123 4567" disabled>
+          </div>
+        </div>
+
+        <!-- Edit buttons below the container -->
+        <div class="edit-buttons">
+          <button class="btn btn-edit" id="editBtn">Edit</button>
+          <button class="btn btn-cancel" id="cancelBtn" style="display: none;">Cancel</button>
+          <button class="btn" id="saveBtn" style="display: none;">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const editBtn = document.getElementById('editBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    const inputs = document.querySelectorAll('.field-input');
+    let originalValues = [];
+
+    editBtn.addEventListener('click', () => {
+      // Store original values
+      originalValues = Array.from(inputs).map(input => input.value);
+      inputs.forEach(input => input.disabled = false);
+      editBtn.style.display = 'none';
+      cancelBtn.style.display = 'inline-block';
+      saveBtn.style.display = 'inline-block';
+    });
+
+    cancelBtn.addEventListener('click', () => {
+      // Restore original values
+      inputs.forEach((input, index) => {
+        input.value = originalValues[index];
+        input.disabled = true;
+      });
+      editBtn.style.display = 'inline-block';
+      cancelBtn.style.display = 'none';
+      saveBtn.style.display = 'none';
+    });
+
+    saveBtn.addEventListener('click', () => {
+      inputs.forEach(input => input.disabled = true);
+      editBtn.style.display = 'inline-block';
+      cancelBtn.style.display = 'none';
+      saveBtn.style.display = 'none';
+      alert('Profile saved!'); // Placeholder for save action
+    });
+  </script>
+
+</body>
+
+</html>
