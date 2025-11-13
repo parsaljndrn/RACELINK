@@ -1,7 +1,9 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
 from app import db
-from app.models import MarathonEvent, Booking, PaymentProof
+from app.models import MarathonEvent, Booking, PaymentProof, MarathonDistance
+import os
+from werkzeug.utils import secure_filename
 
 runner = Blueprint('runner', __name__, url_prefix='/runner')
 
@@ -11,44 +13,76 @@ def view_marathons():
     marathons = MarathonEvent.query.all()
     return render_template('runner/marathons.html', marathons=marathons)
 
-#magbobook ng marathon
-@runner.route('/book/<int:event_id>', methods=['GET', 'POST'])
+
+@runner.route('/marathon/<int:event_id>/distances')
+def get_marathon_distances(event_id):
+    distances = MarathonDistance.query.filter_by(marathon_id=event_id).all()
+    return jsonify([
+        {"id": d.id, "distance": d.distance, "price": d.price} 
+        for d in distances
+    ])
+
+# Create booking
+@runner.route('/marathons/book/<int:event_id>', methods=['POST'])
 @login_required
 def book_marathon(event_id):
-    marathon = MarathonEvent.query.get_or_404(event_id)
+    distance_id = request.form.get('distance', type=int)
+    tshirt = request.form.get('tshirt')
 
-    if request.method == 'POST':
-        booking = Booking(
-            user_id=current_user.id,
-            marathon_id=event_id,
-            status='Pending'
-        )
-        db.session.add(booking)
-        db.session.commit()
-        flash('Marathon booked successfully! Please upload payment proof.', 'success')
-        return redirect(url_for('runner.upload_payment', booking_id=booking.id))
+    if not distance_id or not tshirt:
+        return {"error": "Missing fields"}, 400
 
-    return render_template('runner/book.html', marathon=marathon)
+    distance_obj = MarathonDistance.query.get(distance_id)
+    if not distance_obj:
+        return {"error": "Invalid distance selected"}, 400
 
-#maguupload ng payment
-@runner.route('/upload_payment/<int:booking_id>', methods=['GET', 'POST'])
+    booking = Booking(
+        user_id=current_user.id,
+        marathon_id=event_id,
+        distance=distance_obj.distance,
+        price=distance_obj.price,
+        tshirt_size=tshirt,
+        payment_status='Pending'
+    )
+    db.session.add(booking)
+    db.session.commit()
+
+    return {"booking_id": booking.id}
+
+
+# Upload payment proof
+@runner.route('/upload_payment/<int:booking_id>', methods=['POST'])
 @login_required
 def upload_payment(booking_id):
     booking = Booking.query.get_or_404(booking_id)
+    payment_image = request.files.get('payment_image')
+    amount = request.form.get('amount')
 
-    if request.method == 'POST':
-        file = request.files['payment_proof']
-        if file:
-            proof = PaymentProof(
-                booking_id=booking.id,
-                file_path=file.filename
-            )
-            db.session.add(proof)
-            db.session.commit()
-            flash('Payment proof uploaded. Awaiting approval.', 'info')
-            return redirect(url_for('runner.my_bookings'))
+    if not payment_image or not amount:
+        flash("Please upload a file and enter amount")
+        return redirect(url_for('runner.view_marathons'))
 
-    return render_template('runner/upload_payment.html', booking=booking)
+    # Make sure uploads folder exists
+    UPLOAD_FOLDER = os.path.join(os.getcwd(), 'app', 'static', 'uploads')
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+    # Use secure filename
+    filename = secure_filename(payment_image.filename)
+    file_path = os.path.join(UPLOAD_FOLDER, filename)
+    payment_image.save(file_path)
+
+    # Create payment proof record
+    payment = PaymentProof(
+        booking_id=booking.id,
+        file_path=f"uploads/{filename}",  # relative path for HTML
+        status='Pending',
+        amount=float(amount)
+    )
+    db.session.add(payment)
+    db.session.commit()
+
+    flash("Payment uploaded successfully, waiting for approval")
+    return redirect(url_for('runner.view_marathons'))
 
 #viewing ng mga na book na marathon
 @runner.route('/my_bookings')

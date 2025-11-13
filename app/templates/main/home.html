@@ -1,7 +1,32 @@
-<h1>Welcome to RACELINK</h1>
-<p>Your portal for marathon events and registration.</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>RaceLink</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Righteous&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home_styles.css') }}">
+</head>
+<body>
 
-<a href="/runner/marathons">Marathons</a>
-<a href="/about">About</a>
-<a href = "/register"> SIGN IN</a>
-<a href = "/login"> LOG IN</a>
+<div class="home-page">
+  <nav>
+    <a href="{{ url_for('runner.view_marathons') }}">Marathons</a>
+    <a href="{{ url_for('main.about') }}">About Us</a>
+  </nav>
+  <h1>Your All-in-One<br />Running <br />Community</h1>
+  <p class="subheading">Discover, Connect, and Join Marathons Near You</p>
+ <div class="buttons">
+    <button class="round-button" onclick="window.location.href='{{ url_for('auth.login') }}'">Log In</button>
+    <button class="round-button" onclick="window.location.href='{{ url_for('runner.view_marathons') }}'">Browse as Guest</button>
+</div>
+</div>
+
+<div class="sidebar">
+  <p class="Sidebar_Text">RaceLink</p>
+</div>
+
+</body>
+</html>

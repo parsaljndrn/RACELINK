@@ -1,6 +1,7 @@
 from datetime import datetime
 from flask_login import UserMixin
 from app import db, login_manager
+from sqlalchemy import UniqueConstraint
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -37,22 +38,47 @@ class MarathonEvent(db.Model):
     description = db.Column(db.Text, nullable=False)
     date = db.Column(db.DateTime, nullable=False)
     location = db.Column(db.String(200), nullable=False)
-    registration_fee = db.Column (db.Float, nullable=False)
     organizer_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     # number of participants
 
     bookings = db.relationship('Booking', backref='marathon', lazy=True)
+    distances = db.relationship('MarathonDistance', backref='marathon',  cascade='all, delete-orphan')
+    tshirt_sizes = db.relationship('MarathonTshirtSize', backref='marathon', lazy=True)
 
-# Booked Marathon
+# Available distances for each marathon
+class MarathonDistance(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    marathon_id = db.Column(db.Integer, db.ForeignKey('marathon_event.id'), nullable=False)
+    distance = db.Column(db.String(50), nullable=False)
+    price = db.Column(db.Float, nullable=False)
+
+    __table_args__ = (
+        db.UniqueConstraint('marathon_id', 'distance', name='unique_distance_per_marathon'),
+    )
+
+# Available shirt sizes for each marathon
+class MarathonTshirtSize(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    marathon_id = db.Column(db.Integer, db.ForeignKey('marathon_event.id'), nullable=False)
+    size = db.Column(db.String(10), nullable=False)
+
 class Booking(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     marathon_id = db.Column(db.Integer, db.ForeignKey('marathon_event.id'), nullable=False)
+    distance = db.Column(db.String(50))
+    price = db.Column(db.Float) 
+    tshirt_size = db.Column(db.String(10))
     payment_status = db.Column(db.String(20), default='pending')
     bib_number = db.Column(db.String(20), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     payment_proof = db.relationship('PaymentProof', backref='booking', uselist=False)
+
+    # Enforce uniqueness per marathon
+    __table_args__ = (
+        UniqueConstraint('marathon_id', 'bib_number', name='unique_bib_per_marathon'),
+    )
 
 # Payments
 class PaymentProof(db.Model):
@@ -61,3 +87,4 @@ class PaymentProof(db.Model):
     file_path = db.Column(db.String(200), nullable=False)
     uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(db.String(20), default='Pending')
+    amount = db.Column(db.Float, nullable=False) 

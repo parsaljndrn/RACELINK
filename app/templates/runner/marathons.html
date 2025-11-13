@@ -1,11 +1,181 @@
 {% extends 'base_user.html' %}
 {% block content %}
 <h2>Available Marathons</h2>
-<ul>
-{% for marathon in marathons %}
-    <li>{{ marathon.name }} - {{ marathon.location }} - {{ marathon.date }}</li>
-<h2>All Marathon Events</h2>
-<p>This will show the list of available marathons.</p>
+<div>
+{% for m in marathons %}
+    <p>{{ m.title }}</p>
+    <p>{{ m.location }}</p>
+    <p>{{ m.date.strftime("%Y-%m-%d") }}</p>
+    <p>{{ m.registration_fee }}</p>
+    <button type="button" onclick='openBookModal("{{ m.id }}", "{{ m.title }}", "{{ m.date.strftime("%Y-%m-%d") }}", "{{ m.location }}", "{{ m.registration_fee }}", "{{ m.description }}")'>
+        Book
+    </button>
 {% endfor %}
-</ul>
+</div>
+
+<!-- Marathon Details Modal -->
+<div id="detailsModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5);">
+  <div style="background:white; padding:20px; margin:100px auto; width:400px; border-radius:10px;">
+    <h2 id="modalTitle">Marathon Details</h2>
+    <p><strong>Date:</strong> <span id="modalDate"></span></p>
+    <p><strong>Location:</strong> <span id="modalLocation"></span></p>
+      <h3>🏁 Distances & Prices</h3>
+      <ul id="distanceList"><li>Loading...</li></ul>
+    <p><strong>Description:</strong> <span id="modalDescription"></span></p>
+    <button id="bookbtn">Book</button>
+    <button type="button" onclick="closeDetailsModal()">Back</button>
+  </div>
+</div>
+
+<!-- Booking Modal -->
+<div id="bookingModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5);">
+  <div style="background:white; padding:20px; margin:100px auto; width:400px; border-radius:10px;">
+    <h2>Booking Options</h2>
+    <p><strong>Choose Distance:</strong></p>
+    <select id="distanceSelect">
+      <option disabled selected>Loading...</option>
+    </select>
+
+    <p><strong>T-Shirt Size:</strong></p>
+    <select id="tshirtSelect">
+      <option value="S">S</option>
+      <option value="M">M</option>
+      <option value="L">L</option>
+      <option value="XL">XL</option>
+    </select>
+
+    <button id="nextBtn">Next</button>
+    <button type="button" onclick="closeBookingModal()">Back</button>
+  </div>
+</div>
+
+<!-- Payment Modal -->
+<div id="paymentModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5);">
+  <div style="background:white; padding:20px; margin:100px auto; width:400px; border-radius:10px;">
+    <h2>Upload Payment</h2>
+    <form id="paymentForm" method="POST" enctype="multipart/form-data">
+      <input type="file" name="payment_image" required><br><br>
+      <input type="number" name="amount" placeholder="Enter payment amount" required><br><br>
+      <button type="submit">Upload Payment</button>
+      <button type="button" onclick="closePaymentModal()">Back</button>
+    </form>
+  </div>
+</div>
+
+
+<script>let currentEventId = null;
+let currentBookingId = null;
+
+function openBookModal(id, title, date, location, fee, description) {
+    currentEventId = id;
+
+    document.getElementById('modalTitle').innerText = title;
+    document.getElementById('modalDate').innerText = date;
+    document.getElementById('modalLocation').innerText = location;
+    document.getElementById('modalDescription').innerText = description;
+    
+    const list = document.getElementById('distanceList');
+    list.innerHTML = '<li>Loading...</li>';
+
+     // 🔥 Fetch the distances for this marathon
+     fetch(`/runner/marathon/${id}/distances`)
+       .then(res => res.json())
+       .then(data => {
+         list.innerHTML = '';
+         if (data.length > 0) {
+           data.forEach(d => {
+             list.innerHTML += `<li>${d.distance} — ₱${d.price}</li>`;
+           });
+         } else {
+           list.innerHTML = '<li>No available distances.</li>';
+         }
+       })
+       .catch(err => {
+         console.error('Error loading distances:', err);
+         list.innerHTML = '<li>Error loading distances.</li>';
+       });
+         document.getElementById('detailsModal').style.display = 'block';
+         document.getElementById('bookbtn').onclick = function() {
+       closeDetailsModal();
+       openBookingModal(); // whatever your booking function is
+     };
+}
+
+function closeDetailsModal() { document.getElementById('detailsModal').style.display = 'none'; }
+
+function openBookingModal() {
+  const modal = document.getElementById('bookingModal');
+  const select = document.getElementById('distanceSelect');
+  
+  nextBtn.disabled = true;
+  select.innerHTML = '<option disabled selected>Loading...</option>';
+  
+  console.log("Fetching distances for event:", currentEventId);
+
+  fetch(`/runner/marathon/${currentEventId}/distances`)
+    .then(res => res.json())
+    .then(data => {
+      console.log("Distance data:", data);
+      select.innerHTML = '';
+      if (data.length > 0) {
+        data.forEach(d => {
+          const option = document.createElement('option');
+          option.value = d.id; // store distance_id for backend booking
+          option.textContent = `${d.distance} — ₱${d.price}`;
+          select.appendChild(option);
+        });
+        nextBtn.disabled = false;
+      } else {
+        select.innerHTML = '<option disabled>No distances available</option>';
+      }
+    })
+    .catch(err => {
+      console.error('Error fetching distances:', err);
+      select.innerHTML = '<option disabled>Error loading distances</option>';
+    });
+
+  modal.style.display = 'block';
+}
+
+function closeBookingModal() { document.getElementById('bookingModal').style.display = 'none'; }
+function openPaymentModal() { document.getElementById('paymentModal').style.display = 'block'; }
+function closePaymentModal() { document.getElementById('paymentModal').style.display = 'none'; }
+
+// Booking "Next" button
+document.getElementById('nextBtn').addEventListener('click', async function() {
+    // 🔹 Get user selections here
+    const distance = document.getElementById('distanceSelect').value;
+    const tshirt = document.getElementById('tshirtSelect').value;
+
+    const formData = new FormData();
+    formData.append('distance', distance);
+    formData.append('tshirt', tshirt);
+
+    try {
+        const res = await fetch(`/runner/marathons/book/${currentEventId}`, {
+            method: 'POST',
+            body: formData
+        });
+        const data = await res.json();
+
+        if (!data.booking_id) {
+            alert("Booking failed. Cannot proceed to payment.");
+            return;
+        }
+
+        currentBookingId = data.booking_id;
+
+        closeBookingModal();
+        openPaymentModal();
+
+        // Set payment form action dynamically
+        document.getElementById('paymentForm').action = `/runner/upload_payment/${currentBookingId}`;
+    } catch (err) {
+        console.error(err);
+        alert("Something went wrong while creating booking.");
+    }
+});
+
+</script>
+
 {% endblock %}
