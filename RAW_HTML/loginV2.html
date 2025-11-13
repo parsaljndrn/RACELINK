@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RaceLink - Sign Up / Log In</title>
+  <link href="https://fonts.googleapis.com/css2?family=Righteous&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --yellow: #FFCD29;
+      --black: #0B0C10;
+      --gray-light: #F7F7F7;
+      --gray-dark: #666666;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Righteous', cursive;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: var(--black);
+      background-image: url('background.png');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    .container {
+      background: #f4f4f4;
+      align-items: center;
+      width: 350px;
+      border-radius: 15px;
+      padding: 30px 30px;
+      box-shadow: 0 3px 15px rgb(0 0 0 / 0.1);
+      text-align: center;
+      color: var(--gray-dark);
+      font-weight: 400;
+    }
+
+    .brand-title {
+      font-weight: 400;
+      font-size: 18px;
+      margin-bottom: 5px;
+    }
+
+    .brand-title span {
+      color: var(--yellow);
+      font-weight: 700;
+    }
+
+    .subtitle {
+      margin-bottom: 25px;
+      font-size: 14px;
+    }
+
+    .toggle-buttons {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 25px;
+      gap: 10px;
+    }
+
+    .toggle-btn {
+      font-family: 'Righteous', cursive;
+      flex: 1;
+      padding: 10px 0;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: 600;
+      border: 2.5px solid transparent;
+      border-radius: 8px;
+      outline: none;
+      transition: all 0.3s ease;
+      user-select: none;
+      color: var(--black);
+      background: transparent;
+    }
+
+    .toggle-btn.sign-up:hover {
+      font-family: 'Righteous', cursive;
+      background-color: var(--black);
+      color: var(--yellow);
+      border-color: var(--yellow);
+    }
+
+    .toggle-btn.log-in:hover {
+      font-family: 'Righteous', cursive;
+      background-color: var(--yellow);
+      color: var(--black);
+      border-color: var(--yellow);
+    }
+
+    .toggle-btn.active {
+      background: transparent;
+      border-color: transparent;
+      color: var(--black);
+      font-weight: 700;
+    }
+
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 10px 0px;
+      margin-bottom: 18px;
+      border: 1.8px solid var(--yellow);
+      border-radius: 10px;
+      font-size: 14px;
+      outline-offset: 2px;
+      font-family: 'Righteous', cursive;
+      color: var(--black);
+    }
+
+    input::placeholder {
+      font-style: italic;
+      color: #bfbfbf;
+    }
+
+    button.submit-btn {
+      width: 100%;
+      padding: 12px;
+      background-color: var(--yellow);
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 8px;
+      font-size: 16px;
+      color: var(--black);
+      transition: background-color 0.3s ease;
+      font-family: 'Righteous', cursive;
+    }
+
+    button.submit-btn:hover {
+      background-color: #e0b121;
+    }
+
+    button.back-btn {
+      margin-top: 16px;
+      background: none;
+      border: none;
+      font-size: 13px;
+      color: var(--gray-dark);
+      cursor: pointer;
+      font-family: 'Righteous', cursive;
+      font-weight: 400;
+      user-select: none;
+      transition: color 0.3s ease;
+    }
+
+    button.back-btn:hover {
+      color: var(--yellow);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container" role="main" aria-label="RaceLink registration">
+    <div class="brand-title"><span>Race</span>Link</div>
+    <div class="subtitle">Your Marathon Registration Platform</div>
+
+    <div class="toggle-buttons" role="tablist">
+      <button id="signUpBtn" class="toggle-btn sign-up active" aria-selected="true" aria-controls="signUpForm"
+        role="tab" tabindex="0" onclick="switchForm('signUp')">Sign Up</button>
+      <button id="logInBtn" class="toggle-btn log-in" aria-selected="false" aria-controls="logInForm" role="tab"
+        tabindex="-1" onclick="switchForm('logIn')">Log In</button>
+    </div>
+
+    <form id="signUpForm" class="active" onsubmit="submitSignUp(event)" role="tabpanel" aria-labelledby="signUpBtn">
+      <label for="sign-up-email">Email</label>
+      <input id="sign-up-email" type="email" placeholder="Enter your email" required />
+      <label for="sign-up-password">Password</label>
+      <input id="sign-up-password" type="password" placeholder="Enter your password" required />
+      <button type="submit" class="submit-btn">Sign Up</button>
+    </form>
+
+    <form id="logInForm" onsubmit="submitLogIn(event)" role="tabpanel" aria-labelledby="logInBtn" hidden>
+      <label for="log-in-email">Email</label>
+      <input id="log-in-email" type="email" placeholder="Enter your email" required />
+      <label for="log-in-password">Password</label>
+      <input id="log-in-password" type="password" placeholder="Enter your password" required />
+      <button type="submit" class="submit-btn">Log In</button>
+    </form>
+
+    <button class="back-btn" onclick="resetForm()" style="display:none;">Back</button>
+  </div>
+
+  <script>
+    function switchForm(type) {
+      const signUpBtn = document.getElementById('signUpBtn');
+      const logInBtn = document.getElementById('logInBtn');
+      const signUpForm = document.getElementById('signUpForm');
+      const logInForm = document.getElementById('logInForm');
+
+      if (type === 'signUp') {
+        signUpBtn.classList.add('active');
+        signUpBtn.setAttribute('aria-selected', 'true');
+        signUpBtn.tabIndex = 0;
+
+        logInBtn.classList.remove('active');
+        logInBtn.setAttribute('aria-selected', 'false');
+        logInBtn.tabIndex = -1;
+
+        signUpForm.classList.add('active');
+        signUpForm.removeAttribute('hidden');
+
+        logInForm.classList.remove('active');
+        logInForm.setAttribute('hidden', '');
+
+      } else {
+        logInBtn.classList.add('active');
+        logInBtn.setAttribute('aria-selected', 'true');
+        logInBtn.tabIndex = 0;
+
+        signUpBtn.classList.remove('active');
+        signUpBtn.setAttribute('aria-selected', 'false');
+        signUpBtn.tabIndex = -1;
+
+        logInForm.classList.add('active');
+        logInForm.removeAttribute('hidden');
+
+        signUpForm.classList.remove('active');
+        signUpForm.setAttribute('hidden', '');
+      }
+
+      document.querySelector('.back-btn').style.display = 'none';
+    }
+
+    function submitSignUp(e) {
+      e.preventDefault();
+      alert('Sign Up submitted');
+      // Add your sign up logic here
+    }
+
+    function submitLogIn(e) {
+      e.preventDefault();
+      alert('Log In submitted');
+      // Add your log in logic here
+    }
+
+    function resetForm() {
+      // Optional if you want to handle a back button
+    }
+  </script>
+
+</body>
+
+</html>
