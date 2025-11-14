@@ -108,19 +108,25 @@ def edit_marathon(event_id):
     flash('Marathon updated!', 'info')
     return redirect(url_for('admin.manage_events'))
 
-#delete
 @admin.route('/admin/ManageEvents/delete_marathon/<int:event_id>', methods=['POST'])
 @login_required
 @organizer_required
 def delete_marathon(event_id):
     try:
         marathon = MarathonEvent.query.get_or_404(event_id)
+
+        # Delete related bookings first
+        Booking.query.filter_by(marathon_id=marathon.id).delete()
+
         db.session.delete(marathon)
         db.session.commit()
+
         return jsonify({'success': True, 'title': marathon.title})
     except Exception as e:
+        db.session.rollback()  # important
         print(e)
         return jsonify({'success': False, 'error': str(e)})
+
 
 # view payments
 @admin.route('/admin/event/<int:event_id>/payments')

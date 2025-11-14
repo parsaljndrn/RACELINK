@@ -22,7 +22,7 @@
       align-items: center;
       min-height: 100vh;
       color: var(--black);
-      background-image: url('{{ url_for('static', filename='images/background.png') }}');
+      background-image: url("{{ url_for('static', filename='images/background.png') }}");
       background-size: cover;
       background-repeat: no-repeat;
       background-position: center;
@@ -59,6 +59,7 @@
       color: var(--yellow);
       font-weight: 700;
     }
+
     .subtitle {
       margin-bottom: 25px;
       font-size: 15px;
@@ -268,8 +269,12 @@
             </div>
 
             <div>
-              <label for="email">Email</label>
-              <input id="email" type="email" name="email" placeholder="Email" required />
+              <label for="sign-up-email">Email</label>
+              <input id="sign-up-email" name="email" type="email" placeholder="Enter your email" required
+                value="{{ request.form.get('email', '') }}" />
+              <small id="email-error" style="color:red; display:none;">
+                Please use @yahoo.com, @gmail.com, or @icloud.com
+              </small>
             </div>
 
             <div>
@@ -278,8 +283,8 @@
             </div>
 
             <div>
-              <label for="phone">Phone</label>
-              <input id="phone" type="text" name="phone" placeholder="Phone" required />
+              <label for="sign-up-phone">Phone</label>
+              <input id="sign-up-phone" name="phone" type="tel" maxlength="11" placeholder="09XXXXXXXXX" required />
             </div>
 
             <div>
@@ -303,13 +308,16 @@
 
             <div>
               <label for="emergency_contact_name">Emergency Contact Name</label>
-              <input id="emergency_contact_name" type="text" name="emergency_contact_name" placeholder="Emergency Contact Name" required />
+              <input id="emergency_contact_name" type="text" name="emergency_contact_name"
+                placeholder="Emergency Contact Name" required />
             </div>
 
             <div>
               <label for="emergency_contact_number">Emergency Contact Number</label>
-              <input id="emergency_contact_number" type="text" name="emergency_contact_number" placeholder="Emergency Contact Number" required />
+              <input id="emergency_contact_number" name="emergency_contact_number" type="tel" maxlength="11"
+                placeholder="09XXXXXXXXX" required />
             </div>
+
           </div>
           <button type="submit" class="submit-btn">Register</button>
         </form>
@@ -331,14 +339,51 @@
   </div>
 
   <script>
-    function home(){
-        window.location.href = "{{ url_for('main.home') }}";
+    document.addEventListener('DOMContentLoaded', function () {
+      const birthdateInput = document.getElementById('birthdate');
+      const today = new Date().toISOString().split('T')[0]; 
+      birthdateInput.setAttribute('max', today);
+    });
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+      function allowOnlyDigits(inputId) {
+        const input = document.getElementById(inputId);
+        if (input) {
+          input.addEventListener('input', function () {
+            this.value = this.value.replace(/\D/g, '');
+          });
+        }
+      }
+
+      allowOnlyDigits('sign-up-phone');
+      allowOnlyDigits('sign-up-emergency-contact-number');
+    });
+
+    const emailInput = document.getElementById('sign-up-email');
+    const errorMsg = document.getElementById('email-error');
+
+    emailInput.addEventListener('input', () => {
+      const pattern = /^[a-zA-Z0-9._%+-]+@(yahoo\.com|gmail\.com|icloud\.com)$/;
+      if (pattern.test(emailInput.value)) {
+        errorMsg.style.display = 'none';
+        emailInput.setCustomValidity('');
+      } else {
+        errorMsg.style.display = 'block';
+        emailInput.setCustomValidity('Invalid email domain');
+      }
+    });
+
+    function home() {
+      window.location.href = "{{ url_for('main.home') }}";
     }
     function switchPanel(panel) {
       const signUpPanel = document.getElementById('signUpPanel');
       const logInPanel = document.getElementById('logInPanel');
       const signUpBtn = document.getElementById('signUpBtn');
       const logInBtn = document.getElementById('logInBtn');
+
+
 
       if (panel === 'signUp') {
         signUpPanel.classList.add('active');
